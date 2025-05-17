@@ -4,4 +4,10 @@
 	let { children } = $props();
 </script>
 
-{@render children()}
+<div data-theme="retro" class="mx-auto flex min-h-screen max-w-6xl items-center">
+	{@render children()}
+</div>
+
+<style lang="postcss">
+	@reference "tailwindcss";
+</style>
