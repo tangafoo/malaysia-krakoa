@@ -1,54 +1,133 @@
-<section class="grid grid-cols-6 gap-5 p-3">
-	<div class="card col-span-4 max-h-fit border-3">
-		<div class="flex h-12 w-full items-center border-b-3 border-black bg-zinc-400 px-2">
-			<h1 class="font-pixelify text-2xl text-zinc-50">
-				<span class="bg-red-500 px-1 font-sans font-bold text-white">MARVEL</span>
-				needs Kevin Feige !
-			</h1>
-		</div>
-		<div class="flex flex-col gap-2 bg-zinc-300 p-2.5">
-			<div class="chat chat-start">
-				<div
-					class="chat-bubble font-ballet flex gap-4 pt-6 text-3xl font-bold text-pretty shadow-md"
-				>
-					"Thunderbolts* is the best movie Marvel has put out in awhile"
-				</div>
-			</div>
-			<div class="chat chat-end">
-				<div class="chat-bubble chat-bubble-info flex gap-4 shadow-md">
+<script lang="ts">
+	import { enhance } from '$app/forms';
+	import XPWindow from '$lib/components/XPWindow.svelte';
+	import XPButton from '$lib/components/XPButton.svelte';
+	import CommentCard from '$lib/components/CommentCard.svelte';
+
+	let { data, form } = $props();
+
+	let submitting = $state(false);
+	let content = $state('');
+	let name = $state('');
+	const maxLen = 500;
+	const remaining = $derived(maxLen - content.length);
+</script>
+
+<section class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+	<!-- Composer + top 5 (left, 2 cols) -->
+	<div class="flex flex-col gap-4 lg:col-span-2">
+		<XPWindow title="Compose Message for Kevin.exe" icon="✉️">
+			<form
+				method="POST"
+				action="?/submit"
+				class="flex flex-col gap-3"
+				use:enhance={() => {
+					submitting = true;
+					return async ({ update, result }) => {
+						await update({ reset: false });
+						submitting = false;
+						if (result.type === 'success') {
+							content = '';
+							name = '';
+						}
+					};
+				}}
+			>
+				<label class="font-tahoma flex flex-col gap-1 text-sm">
+					<span class="font-bold"
+						>Your name <span class="font-normal text-[#404040]">(optional)</span></span
+					>
 					<input
-						class="input chat-bubble !rounded-box flex-1 bg-white text-black shadow-md"
-						placeholder="Message for Kevin Feige"
+						name="name"
+						bind:value={name}
+						maxlength="40"
+						placeholder="Anonymous Fan"
+						class="xp-bevel-inset font-tahoma bg-white px-2 py-1 text-base"
 					/>
-					<button
-						class="btn btn-secondary rounded-box font-pixelify via-secondary bg-gradient-to-t from-cyan-500 to-cyan-500 text-base shadow-md uppercase hover:scale-105 transition-all ease-in"
-						>Send</button
-					>
+				</label>
+
+				<label class="font-tahoma flex flex-col gap-1 text-sm">
+					<span class="font-bold">
+						Message for Kevin Feige
+						<span class="font-normal text-[#404040]">({remaining} chars left)</span>
+					</span>
+					<textarea
+						name="content"
+						bind:value={content}
+						maxlength={maxLen}
+						required
+						rows="4"
+						placeholder="Dear Kevin..."
+						class="xp-bevel-inset font-tahoma bg-white px-2 py-1 text-base"
+					></textarea>
+				</label>
+
+				{#if form?.error}
+					<div class="xp-bevel-inset bg-[#ffdddd] px-2 py-1 text-sm text-red-800">
+						⚠ {form.error}
+					</div>
+				{/if}
+				{#if form?.success}
+					<div class="xp-bevel-inset bg-[#ddffdd] px-2 py-1 text-sm text-green-900">
+						✓ {form.message}
+					</div>
+				{/if}
+
+				<div class="flex items-center justify-between gap-2">
+					<span class="font-tahoma text-xs text-[#404040]">
+						Spam &amp; hate filtered by AI moderation.
+					</span>
+					<XPButton type="submit" variant="primary" disabled={submitting || !content.trim()}>
+						{submitting ? 'Sending…' : 'Send to Kevin'}
+					</XPButton>
 				</div>
-			</div>
-		</div>
-	</div>
-	<div class="card col-span-2 border-3 border-black">
-		<div class="card bg-base-100 shadow-sm">
-			<figure>
-				<img
-					src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
-					alt="Shoes"
-				/>
-			</figure>
-			<div class="card-body">
-				<p>
-					A card component has a figure, a body part, and inside body there are title and actions
-					parts
+			</form>
+		</XPWindow>
+
+		<XPWindow title="Top 5 Messages — Hot Right Now" icon="🔥">
+			{#if data.top5.length === 0}
+				<p class="font-tahoma py-4 text-center text-sm text-[#404040]">
+					No messages yet. Be the first to send one!
 				</p>
-				<div class="card-actions justify-end">
-					<button
-						class="font-pixelify max-w-fit rounded-full border-2 border-amber-500 bg-gradient-to-br from-amber-500 via-yellow-200 to-amber-500 px-6 py-1 text-lg font-semibold italic shadow-md"
-					>
-						Donate
-					</button>
+			{:else}
+				<div class="flex flex-col gap-2">
+					{#each data.top5 as comment, i (comment.id)}
+						<CommentCard {comment} rank={i + 1} />
+					{/each}
+				</div>
+				<div class="mt-3 text-right">
+					<XPButton href="/comments" variant="default">See all messages →</XPButton>
+				</div>
+			{/if}
+		</XPWindow>
+	</div>
+
+	<!-- Right column: spotlight + quote + hit counter -->
+	<aside class="flex flex-col gap-4">
+		<XPWindow title="Quote of the Day" icon="💡">
+			<blockquote class="font-ballet text-2xl leading-snug text-[#3a2a1a]">
+				"{data.quote.quote}"
+			</blockquote>
+			<p class="font-tahoma mt-2 text-right text-xs font-bold">— {data.quote.source}</p>
+		</XPWindow>
+
+		<XPWindow title="MCU Spotlight" icon="🎬">
+			<div class="flex gap-3">
+				{#if data.spotlight.poster_url}
+					<img
+						src={data.spotlight.poster_url}
+						alt={data.spotlight.title}
+						class="xp-bevel-inset h-32 w-auto bg-black"
+					/>
+				{/if}
+				<div class="flex-1">
+					<h3 class="font-pixelify text-lg leading-tight">{data.spotlight.title}</h3>
+					<p class="font-tahoma text-xs text-[#404040]">
+						Released {data.spotlight.release_date}
+					</p>
+					<p class="font-tahoma mt-1 line-clamp-5 text-sm">{data.spotlight.overview}</p>
 				</div>
 			</div>
-		</div>
-	</div>
+		</XPWindow>
+	</aside>
 </section>

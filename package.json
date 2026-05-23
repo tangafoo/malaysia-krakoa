@@ -41,5 +41,12 @@
 		"onlyBuiltDependencies": [
 			"esbuild"
 		]
+	},
+	"dependencies": {
+		"@langchain/openai": "^0.5.10",
+		"@supabase/supabase-js": "^2.106.1",
+		"dotenv": "^16.5.0",
+		"langchain": "^0.3.26",
+		"posthog-js": "^1.376.0"
 	}
 }

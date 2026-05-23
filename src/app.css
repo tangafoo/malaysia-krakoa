@@ -1,13 +1,113 @@
-@import url('https://fonts.googleapis.com/css2?family=Ballet:opsz@16..72&family=Pixelify+Sans:wght@400..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Ballet:opsz@16..72&family=Pixelify+Sans:wght@400..700&family=VT323&display=swap');
 
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
 @plugin "daisyui" {
-    themes: retro --default;
+	themes: retro --default;
 }
 
 @theme {
-  --font-pixelify: "Pixelify Sans", sans-serif; 
-  --font-ballet: "Ballet", sans-serif; 
+	--font-pixelify: 'Pixelify Sans', sans-serif;
+	--font-ballet: 'Ballet', sans-serif;
+	--font-vt323: 'VT323', monospace;
+	--font-tahoma: Tahoma, 'MS Sans Serif', Geneva, Verdana, sans-serif;
+
+	--color-xp-blue: #0058e9;
+	--color-xp-blue-light: #3493ff;
+	--color-xp-green: #74a224;
+	--color-xp-green-dark: #5a8019;
+	--color-xp-tan: #ece9d8;
+	--color-xp-gray: #d4d0c8;
+}
+
+body {
+	font-family: Tahoma, 'MS Sans Serif', Geneva, Verdana, sans-serif;
+	background: linear-gradient(180deg, #2b8df0 0%, #5db4e8 50%, #74a224 50%, #8fc44a 100%);
+	background-attachment: fixed;
+	min-height: 100vh;
+}
+
+/* XP-style 3D bevel — outset (default) */
+.xp-bevel {
+	border-style: solid;
+	border-width: 2px;
+	border-color: #ffffff #404040 #404040 #ffffff;
+	box-shadow:
+		inset 1px 1px 0 #dfdfdf,
+		inset -1px -1px 0 #808080;
+}
+
+/* XP-style 3D bevel — inset (pressed / sunken) */
+.xp-bevel-inset {
+	border-style: solid;
+	border-width: 2px;
+	border-color: #404040 #ffffff #ffffff #404040;
+	box-shadow:
+		inset 1px 1px 0 #808080,
+		inset -1px -1px 0 #dfdfdf;
+}
+
+/* XP title bar gradient */
+.xp-titlebar {
+	background: linear-gradient(
+		180deg,
+		#0058e9 0%,
+		#3493ff 8%,
+		#0058e9 40%,
+		#2367d1 88%,
+		#2580ef 93%,
+		#0058e9 100%
+	);
+	color: white;
+	font-weight: bold;
+	text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
+}
+
+/* "Active button" press effect */
+.xp-button:active:not(:disabled) {
+	border-color: #404040 #ffffff #ffffff #404040;
+	box-shadow:
+		inset 1px 1px 0 #808080,
+		inset -1px -1px 0 #dfdfdf;
+	transform: translate(1px, 1px);
+}
+
+/* CRT scanline texture for hit counter */
+.crt-screen {
+	background: #000;
+	color: #00ff41;
+	font-family: var(--font-vt323), monospace;
+	text-shadow:
+		0 0 4px #00ff41,
+		0 0 10px #00ff41;
+	position: relative;
+	overflow: hidden;
+}
+.crt-screen::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: repeating-linear-gradient(
+		0deg,
+		rgba(0, 0, 0, 0) 0px,
+		rgba(0, 0, 0, 0) 2px,
+		rgba(0, 0, 0, 0.15) 3px
+	);
+	pointer-events: none;
+}
+
+/* Marquee */
+@keyframes xp-marquee {
+	0% {
+		transform: translateX(100%);
+	}
+	100% {
+		transform: translateX(-100%);
+	}
+}
+.xp-marquee-track {
+	display: inline-block;
+	white-space: nowrap;
+	animation: xp-marquee 30s linear infinite;
 }
