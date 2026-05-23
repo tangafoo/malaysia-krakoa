@@ -1,0 +1,13 @@
+name = "marvelfansforfeige"
+pages_build_output_dir = ".svelte-kit/cloudflare"
+
+# Bumped past 2024-09-23 (minimum for @sveltejs/adapter-cloudflare v7).
+# Bump again whenever you want newer Workers runtime features; old behavior
+# is preserved at the date that was set when the project shipped.
+compatibility_date = "2026-05-23"
+
+# nodejs_compat enables Node.js built-ins (`node:crypto`, `node:buffer`,
+# etc.) inside the Worker runtime. Belt-and-suspenders for any dependency
+# that hasn't fully adopted Web APIs (Supabase / OpenAI SDKs sometimes
+# reach for Node internals in transitive deps).
+compatibility_flags = ["nodejs_compat"]
