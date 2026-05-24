@@ -4,6 +4,7 @@
 	import XPButton from '$lib/components/XPButton.svelte';
 	import CommentCard from '$lib/components/CommentCard.svelte';
 	import SpotlightVote from '$lib/components/SpotlightVote.svelte';
+	import KevinTooltip from '$lib/components/KevinTooltip.svelte';
 	import { formatReleaseDate } from '$lib/date';
 
 	let { data, form } = $props();
@@ -11,6 +12,7 @@
 	let submitting = $state(false);
 	let content = $state('');
 	let name = $state('');
+	let spotlightExpanded = $state(false);
 	const maxLen = 500;
 	const remaining = $derived(maxLen - content.length);
 
@@ -60,7 +62,7 @@
 
 			<label class="font-tahoma flex flex-col gap-1 text-sm">
 				<span class="font-bold">
-					Message for Kevin Feige
+					Message for <KevinTooltip>Kevin Feige</KevinTooltip>
 					<span class="font-normal text-[#404040]">({remaining} chars left)</span>
 				</span>
 				<textarea
@@ -127,23 +129,49 @@
 {/snippet}
 
 {#snippet spotlight()}
-	<XPWindow title="MCU Spotlight" icon="🎬">
-		<div class="flex gap-3">
-			{#if data.spotlight.poster_url}
-				<img
-					src={data.spotlight.poster_url}
-					alt={data.spotlight.title}
-					class="xp-bevel-inset h-32 w-auto bg-black"
-				/>
-			{/if}
-			<div class="flex-1">
-				<h3 class="font-pixelify text-lg leading-tight">{data.spotlight.title}</h3>
-				<p class="font-tahoma text-xs text-[#404040]">
-					Released {formatReleaseDate(data.spotlight.release_date)}
-				</p>
-				<p class="font-tahoma mt-1 line-clamp-5 text-sm">{data.spotlight.overview}</p>
+	<XPWindow
+		title="MCU Spotlight"
+		icon="🎬"
+		maximized={spotlightExpanded}
+		onMaximize={() => (spotlightExpanded = !spotlightExpanded)}
+	>
+		{#if spotlightExpanded}
+			<div class="flex flex-col gap-3">
+				{#if data.spotlight.poster_url}
+					<div class="xp-bevel-inset flex justify-center bg-black p-2">
+						<img
+							src={data.spotlight.poster_url}
+							alt={data.spotlight.title}
+							class="w-full max-w-xs"
+						/>
+					</div>
+				{/if}
+				<div>
+					<h3 class="font-pixelify text-xl leading-tight">{data.spotlight.title}</h3>
+					<p class="font-tahoma text-xs text-[#404040]">
+						Released {formatReleaseDate(data.spotlight.release_date)}
+					</p>
+					<p class="font-tahoma mt-2 text-sm">{data.spotlight.overview}</p>
+				</div>
 			</div>
-		</div>
+		{:else}
+			<div class="flex gap-3">
+				{#if data.spotlight.poster_url}
+					<img
+						src={data.spotlight.poster_url}
+						alt={data.spotlight.title}
+						class="xp-bevel-inset h-32 w-auto bg-black"
+					/>
+				{/if}
+				<div class="flex-1">
+					<h3 class="font-pixelify text-lg leading-tight">{data.spotlight.title}</h3>
+					<p class="font-tahoma text-xs text-[#404040]">
+						Released {formatReleaseDate(data.spotlight.release_date)}
+					</p>
+					<p class="font-tahoma mt-1 line-clamp-5 text-sm">{data.spotlight.overview}</p>
+				</div>
+			</div>
+		{/if}
 		{#if data.spotlight.tmdb_id}
 			<div class="mt-3 border-t border-[#808080] pt-2">
 				<SpotlightVote

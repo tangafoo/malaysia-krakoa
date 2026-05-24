@@ -68,7 +68,7 @@
 	</main>
 	<footer class="mx-auto max-w-6xl px-3 py-6 text-center">
 		<div class="xp-bevel bg-xp-tan font-tahoma inline-block px-3 py-2 text-xs">
-			Built with love by a Malaysian fan ✦ <a href="/about" class="text-xp-blue underline">About</a>
+			Built with love by a 🇲🇾 fan ✦ <a href="/about" class="text-xp-blue underline">About</a>
 		</div>
 	</footer>
 </div>

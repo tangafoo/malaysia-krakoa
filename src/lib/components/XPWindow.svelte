@@ -8,7 +8,9 @@
 		children,
 		actions,
 		titleClass = '',
-		bodyClass = ''
+		bodyClass = '',
+		onMaximize,
+		maximized = false
 	}: {
 		title: string;
 		icon?: string;
@@ -16,6 +18,8 @@
 		actions?: Snippet;
 		titleClass?: string;
 		bodyClass?: string;
+		onMaximize?: () => void;
+		maximized?: boolean;
 	} = $props();
 
 	let collapsed = $state(false);
@@ -36,7 +40,7 @@
 				onclick={() => (collapsed = !collapsed)}
 				aria-label={collapsed ? 'Restore' : 'Minimize'}
 				aria-pressed={collapsed}
-				class="xp-bevel xp-button font-tahoma bg-xp-gray flex h-5 w-5 items-center justify-center rounded-sm text-xs font-bold text-black {collapsed
+				class="xp-bevel xp-button font-tahoma bg-xp-gray flex h-5 w-5 cursor-pointer items-center justify-center rounded-sm text-xs font-bold text-black {collapsed
 					? ''
 					: 'pb-1 text-sm'}"
 			>
@@ -44,10 +48,15 @@
 			</button>
 			<button
 				type="button"
-				aria-label="Maximize"
-				class="xp-bevel font-tahoma bg-xp-gray flex h-5 w-5 items-center justify-center rounded-sm text-xs font-bold text-black"
+				onclick={onMaximize}
+				disabled={!onMaximize}
+				aria-label={maximized ? 'Restore' : 'Maximize'}
+				aria-pressed={maximized}
+				class="xp-bevel font-tahoma bg-xp-gray flex h-5 w-5 items-center justify-center rounded-sm text-xs font-bold text-black {onMaximize
+					? 'cursor-pointer'
+					: ''}"
 			>
-				□
+				{maximized ? '❐' : '□'}
 			</button>
 			<button
 				type="button"

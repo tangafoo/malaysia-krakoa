@@ -1,6 +1,7 @@
 <script lang="ts">
 	import XPWindow from '$lib/components/XPWindow.svelte';
 	import XPButton from '$lib/components/XPButton.svelte';
+	import KevinTooltip from '$lib/components/KevinTooltip.svelte';
 </script>
 
 <svelte:head>
@@ -23,7 +24,7 @@
 				<p>
 					Hi! I'm a Marvel fan from Malaysia. After watching <em>Thunderbolts*</em> and seeing the
 					discourse around it — a great movie that just couldn't escape the "Marvel fatigue"
-					narrative — I felt that <strong>Kevin Feige</strong> might be a bit sad.
+					narrative — I felt that <KevinTooltip><strong>Kevin Feige</strong></KevinTooltip> might be a bit sad.
 				</p>
 				<p>
 					So I built this site. A small corner of the web where fans from anywhere can leave a short
