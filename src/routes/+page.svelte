@@ -130,7 +130,7 @@
 
 {#snippet spotlight()}
 	<XPWindow
-		title="MCU Spotlight"
+		title="Latest MCU Release"
 		icon="🎬"
 		maximized={spotlightExpanded}
 		onMaximize={() => (spotlightExpanded = !spotlightExpanded)}
