@@ -6,12 +6,24 @@ import { getLatestMCU } from '$lib/server/tmdb';
 import { quoteOfTheDay } from '$lib/feige-quote';
 import type { RankedComment } from '$lib/types';
 
-export const load: ServerLoad = async () => {
+export const load: ServerLoad = async ({ request, getClientAddress }) => {
 	const supabase = getServerSupabase();
-	const [topRes, totalRes, spotlight] = await Promise.all([
+
+	const ip = getClientIp(request.headers) || getClientAddress();
+	const ua = request.headers.get('user-agent') ?? '';
+	const hash = await voterHash(ip, ua);
+	const today = new Date().toISOString().slice(0, 10);
+
+	const [topRes, totalRes, spotlight, refreshRes] = await Promise.all([
 		supabase.from('ranked_comments').select('*').order('hot_score', { ascending: false }).limit(5),
 		supabase.from('comments').select('*', { count: 'exact', head: true }).eq('status', 'approved'),
-		getLatestMCU()
+		getLatestMCU(),
+		supabase
+			.from('quote_refreshes')
+			.select('quote_text, quote_source')
+			.eq('submitter_hash', hash)
+			.eq('refresh_date', today)
+			.maybeSingle()
 	]);
 
 	let spotlightCounts: { hearts: number; broken_hearts: number } | null = null;
@@ -24,10 +36,15 @@ export const load: ServerLoad = async () => {
 		spotlightCounts = data ?? { hearts: 0, broken_hearts: 0 };
 	}
 
+	const quote = refreshRes.data
+		? { quote: refreshRes.data.quote_text, source: refreshRes.data.quote_source }
+		: quoteOfTheDay();
+
 	return {
 		top5: (topRes.data ?? []) as RankedComment[],
 		totalCount: totalRes.count ?? 0,
-		quote: quoteOfTheDay(),
+		quote,
+		quoteRefreshedToday: !!refreshRes.data,
 		spotlight,
 		spotlightCounts
 	};

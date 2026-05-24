@@ -5,7 +5,23 @@
 	import CommentCard from '$lib/components/CommentCard.svelte';
 	import SpotlightVote from '$lib/components/SpotlightVote.svelte';
 	import KevinTooltip from '$lib/components/KevinTooltip.svelte';
+	import { cubicOut } from 'svelte/easing';
 	import { formatReleaseDate } from '$lib/date';
+
+	// Aero-style window transition: scales from 92%, fades, comes into focus from blur.
+	// Pure 2000s Vista / WPF vibe.
+	function aero(_node: Element, { delay = 0, duration = 250 } = {}) {
+		return {
+			delay,
+			duration,
+			easing: cubicOut,
+			css: (t: number) => `
+				opacity: ${t};
+				transform: scale(${0.92 + 0.08 * t});
+				filter: blur(${(1 - t) * 6}px);
+			`
+		};
+	}
 
 	let { data, form } = $props();
 
@@ -13,6 +29,27 @@
 	let content = $state('');
 	let name = $state('');
 	let spotlightExpanded = $state(false);
+	let currentQuote = $state(data.quote);
+	let quoteRefreshed = $state(data.quoteRefreshedToday);
+	let refreshingQuote = $state(false);
+
+	async function refreshQuote() {
+		if (quoteRefreshed || refreshingQuote) return;
+		refreshingQuote = true;
+		try {
+			const res = await fetch('/api/quote-refresh', { method: 'POST' });
+			const body = await res.json();
+			if (res.ok) {
+				currentQuote = { quote: body.quote, source: body.source };
+				quoteRefreshed = true;
+			} else if (res.status === 429) {
+				if (body.quote) currentQuote = { quote: body.quote, source: body.source };
+				quoteRefreshed = true;
+			}
+		} finally {
+			refreshingQuote = false;
+		}
+	}
 	const maxLen = 500;
 	const remaining = $derived(maxLen - content.length);
 
@@ -122,9 +159,14 @@
 {#snippet quote()}
 	<XPWindow title="Quote of the Day" icon="💡">
 		<blockquote class="font-bokor text-3xl leading-snug text-[#3a2a1a]">
-			"{data.quote.quote}"
+			"{currentQuote.quote}"
 		</blockquote>
-		<p class="font-coral-pixels mt-2 text-right text-sm font-bold">— {data.quote.source}</p>
+		<p class="font-coral-pixels mt-2 text-right text-sm font-bold">— {currentQuote.source}</p>
+		<div class="mt-3 text-right">
+			<XPButton onclick={refreshQuote} disabled={quoteRefreshed || refreshingQuote}>
+				{quoteRefreshed ? '✓ Refreshed today' : refreshingQuote ? 'Refreshing…' : '🔄 New quote'}
+			</XPButton>
+		</div>
 	</XPWindow>
 {/snippet}
 
@@ -136,7 +178,11 @@
 		onMaximize={() => (spotlightExpanded = !spotlightExpanded)}
 	>
 		{#if spotlightExpanded}
-			<div class="flex flex-col gap-3">
+			<div
+				in:aero={{ duration: 250, delay: 200 }}
+				out:aero={{ duration: 200 }}
+				class="flex flex-col gap-3"
+			>
 				{#if data.spotlight.poster_url}
 					<div class="xp-bevel-inset flex justify-center bg-black p-2">
 						<img
@@ -155,7 +201,7 @@
 				</div>
 			</div>
 		{:else}
-			<div class="flex gap-3">
+			<div in:aero={{ duration: 250, delay: 200 }} out:aero={{ duration: 200 }} class="flex gap-3">
 				{#if data.spotlight.poster_url}
 					<img
 						src={data.spotlight.poster_url}
@@ -197,7 +243,7 @@
 </section>
 
 <!-- Mobile layout: single column, composer → spotlight → top 5 → quote -->
-<section class="flex flex-col gap-4 lg:hidden">
+<section class="flex flex-col gap-6 lg:hidden">
 	{@render composer()}
 	{@render spotlight()}
 	{@render top5()}

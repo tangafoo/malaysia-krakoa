@@ -59,7 +59,7 @@
 		<span class="font-tahoma tabular-nums">{hearts}</span>
 	</XPButton>
 	<XPButton onclick={() => vote(-1)} disabled={!!voted} ariaLabel="Broken heart">
-		<span class="text-base leading-none">💔</span>
+		<span class="text-base leading-none">❤️‍🩹</span>
 		<span class="font-tahoma tabular-nums">{brokenHearts}</span>
 	</XPButton>
 	{#if error}

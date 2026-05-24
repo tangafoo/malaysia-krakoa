@@ -36,7 +36,8 @@
 	}
 	function onTap() {
 		if (isHoverDevice()) return;
-		// visible ? hide() : show();
+		if (visible) hide();
+		else show();
 	}
 
 	onDestroy(() => {
