@@ -30,6 +30,37 @@
 	}
 
 	const sortKeys: SortKey[] = ['hot', 'new', 'top', 'controversial'];
+
+	// Marvel-flavored personalities per filter.
+	const filterStyle: Record<
+		SortKey,
+		{ icon: string; inactiveBg: string; inactiveText: string; activeText: string }
+	> = {
+		hot: {
+			icon: '🔥',
+			inactiveBg: 'bg-gradient-to-b from-[#ff8c5e] to-[#dc2626]',
+			inactiveText: 'text-white',
+			activeText: 'text-[#dc2626]'
+		},
+		new: {
+			icon: '✨',
+			inactiveBg: 'bg-gradient-to-b from-[#5db4e8] to-[#2b8df0]',
+			inactiveText: 'text-white',
+			activeText: 'text-[#0058e9]'
+		},
+		top: {
+			icon: '🏆',
+			inactiveBg: 'bg-gradient-to-b from-[#fde047] to-[#d97706]',
+			inactiveText: 'text-[#7c2d12]',
+			activeText: 'text-[#a16207]'
+		},
+		controversial: {
+			icon: '🃏',
+			inactiveBg: 'bg-gradient-to-b from-[#86efac] to-[#16a34a]',
+			inactiveText: 'text-white',
+			activeText: 'text-[#16a34a]'
+		}
+	};
 </script>
 
 <svelte:head>
@@ -45,13 +76,16 @@
 <XPWindow title="All Messages to Kevin — Browse &amp; Vote" icon="📂">
 	<div class="flex flex-wrap items-center gap-2 border-b border-[#808080] pb-2">
 		{#each sortKeys as s (s)}
+			{@const style = filterStyle[s]}
 			<button
 				type="button"
 				onclick={() => setSort(s)}
-				class="xp-bevel font-tahoma px-3 py-1 text-sm font-bold {data.sort === s
-					? 'xp-bevel-inset bg-white'
-					: 'bg-xp-gray'}"
+				class="xp-bevel font-tahoma inline-flex cursor-pointer items-center gap-1 px-3 py-1 text-sm font-bold {data.sort ===
+				s
+					? `xp-bevel-inset bg-white ${style.activeText}`
+					: `${style.inactiveBg} ${style.inactiveText}`}"
 			>
+				<span aria-hidden="true">{style.icon}</span>
 				{SORT_LABELS[s]}
 			</button>
 		{/each}
