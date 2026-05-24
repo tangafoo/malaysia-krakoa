@@ -157,7 +157,7 @@
 {/snippet}
 
 {#snippet quote()}
-	<XPWindow title="Quote of the Day" icon="💡">
+	<XPWindow title="Quote of the Day" icon="📚">
 		<blockquote class="font-bokor text-3xl leading-snug text-[#3a2a1a]">
 			"{currentQuote.quote}"
 		</blockquote>
@@ -172,7 +172,7 @@
 
 {#snippet spotlight()}
 	<XPWindow
-		title="Latest MCU Release"
+		title="MCU Spotlight"
 		icon="🎬"
 		maximized={spotlightExpanded}
 		onMaximize={() => (spotlightExpanded = !spotlightExpanded)}
