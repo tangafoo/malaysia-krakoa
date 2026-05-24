@@ -137,15 +137,15 @@
 	</XPWindow>
 {/snippet}
 
-{#snippet top5()}
-	<XPWindow title="Top 5 Messages — Hot Right Now" icon="🔥">
-		{#if data.top5.length === 0}
+{#snippet top3()}
+	<XPWindow title="Top 3 Messages for Kevin" icon="🔥">
+		{#if data.top3.length === 0}
 			<p class="font-tahoma py-4 text-center text-sm text-[#404040]">
 				No messages yet. Be the first to send one!
 			</p>
 		{:else}
 			<div class="flex flex-col gap-3">
-				{#each data.top5 as comment, i (comment.id)}
+				{#each data.top3 as comment, i (comment.id)}
 					<CommentCard {comment} rank={i + 1} />
 				{/each}
 			</div>
@@ -230,11 +230,11 @@
 	</XPWindow>
 {/snippet}
 
-<!-- Desktop layout: 2-col grid, composer/top5 left, quote/spotlight stacked right -->
+<!-- Desktop layout: 2-col grid, composer/top3 left, quote/spotlight stacked right -->
 <section class="hidden gap-4 lg:grid lg:grid-cols-3">
 	<div class="flex flex-col gap-4 lg:col-span-2">
 		{@render composer()}
-		{@render top5()}
+		{@render top3()}
 	</div>
 	<aside class="flex flex-col gap-4">
 		{@render quote()}
@@ -246,6 +246,6 @@
 <section class="flex flex-col gap-6 lg:hidden">
 	{@render composer()}
 	{@render spotlight()}
-	{@render top5()}
+	{@render top3()}
 	{@render quote()}
 </section>

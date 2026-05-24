@@ -51,7 +51,7 @@
 	<div class="mx-auto mt-3 max-w-6xl px-3">
 		<div class="xp-bevel bg-xp-gray flex flex-wrap items-stretch gap-2 p-2 shadow-lg">
 			<HitCounter count={data.totalCount} label="MESSAGES" digits={6} />
-			<PresenceCounter />
+			<PresenceCounter initialPeak={data.peakOnline} />
 			<div class="min-w-0 flex-1">
 				<Marquee>
 					<span>

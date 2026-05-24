@@ -15,7 +15,7 @@ export const load: ServerLoad = async ({ request, getClientAddress }) => {
 	const today = new Date().toISOString().slice(0, 10);
 
 	const [topRes, totalRes, spotlight, refreshRes] = await Promise.all([
-		supabase.from('ranked_comments').select('*').order('hot_score', { ascending: false }).limit(5),
+		supabase.from('ranked_comments').select('*').order('hot_score', { ascending: false }).limit(3),
 		supabase.from('comments').select('*', { count: 'exact', head: true }).eq('status', 'approved'),
 		getLatestMCU(),
 		supabase
@@ -41,7 +41,7 @@ export const load: ServerLoad = async ({ request, getClientAddress }) => {
 		: quoteOfTheDay();
 
 	return {
-		top5: (topRes.data ?? []) as RankedComment[],
+		top3: (topRes.data ?? []) as RankedComment[],
 		totalCount: totalRes.count ?? 0,
 		quote,
 		quoteRefreshedToday: !!refreshRes.data,
