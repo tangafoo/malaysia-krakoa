@@ -94,9 +94,7 @@
 			<span class="text-base leading-none">👎</span>
 			<span class="font-tahoma tabular-nums">{downvotes}</span>
 		</XPButton>
-		<span class="font-tahoma flex-1 text-xs text-[#404040]">
-			Score: <strong class="tabular-nums">{upvotes - downvotes}</strong>
-		</span>
+		<div class="flex-1"></div>
 		{#if error}
 			<span class="font-tahoma text-xs text-red-700">{error}</span>
 		{/if}
