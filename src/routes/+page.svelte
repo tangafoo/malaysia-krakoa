@@ -127,7 +127,7 @@
 
 			<div class="flex items-center justify-between gap-2">
 				<span class="font-tahoma text-xs text-[#404040]">
-					Moderators have their eye out. ⌘+Enter to send.
+					The Watcher sees all 👀. ⌘+Enter to send.
 				</span>
 				<XPButton type="submit" variant="primary" disabled={submitting || !content.trim()}>
 					{submitting ? 'Sending…' : 'Send'}

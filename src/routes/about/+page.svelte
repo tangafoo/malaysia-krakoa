@@ -21,15 +21,17 @@
 	<div class="lg:col-span-2">
 		<XPWindow title="About — readme.txt" icon="📖">
 			<div class="font-tahoma flex flex-col gap-3 text-sm leading-relaxed">
+				<p>Hi!</p>
 				<p>
-					Hi! I'm a Marvel fan from Malaysia. After watching <em>Thunderbolts*</em> and seeing the
-					discourse around it — a great movie that just couldn't escape the "Marvel fatigue"
-					narrative — I felt that <KevinTooltip><strong>Kevin Feige</strong></KevinTooltip> might be a bit sad.
+					I'm a Marvel fan. After watching <em>Thunderbolts*</em> and seeing such a mid reaction
+					(even tho it's such a great movie!!) - I felt that <KevinTooltip
+						><strong>Kevin Feige</strong></KevinTooltip
+					> might be a bit sad with all that "Marvel fatigue" talk.
 				</p>
 				<p>
-					So I built this site. A small corner of the web where fans from anywhere can leave a short
-					message of support, and the most-loved messages float to the top. Maybe one day Mr. Feige
-					stumbles upon it and sees that there are still a lot of us cheering him on.
+					marvelfansforfeige.com is a small corner of the web where fans from everywhere can leave
+					short messages to the OG head of Marvel. Hopefully one day Mr. Feige checks us out, and
+					sees there are still a lot of us cheering him on.
 				</p>
 				<p>
 					Click <a href="/comments" class="text-xp-blue underline">All Messages</a> to read everything
@@ -39,8 +41,16 @@
 				<ul class="list-disc pl-5">
 					<li>Be kind. Hateful or off-topic stuff gets filtered.</li>
 					<li>No accounts. Just names (optional) and messages.</li>
-					<li>One vote per device — be honest.</li>
+					<li>One vote per device.</li>
 				</ul>
+
+				<h3 class="font-pixelify mt-2 text-lg">Contribute 🔨</h3>
+				<p class="font-tahoma text-sm">
+					Found a bug? Have a feature request? Feel free to reach out! <a
+						href="mailto:chevaliertgf@gmail.com"
+						class="text-xp-blue underline">chevaliertgf@gmail.com</a
+					>
+				</p>
 
 				<h3 class="font-pixelify mt-2 text-lg">Built with</h3>
 				<p>
