@@ -138,7 +138,7 @@
 {/snippet}
 
 {#snippet top3()}
-	<XPWindow title="Top 3 Messages for Kevin" icon="🔥">
+	<XPWindow title="Top 3 Messages for K.E.V.I.N" icon="🔥">
 		{#if data.top3.length === 0}
 			<p class="font-tahoma py-4 text-center text-sm text-[#404040]">
 				No messages yet. Be the first to send one!

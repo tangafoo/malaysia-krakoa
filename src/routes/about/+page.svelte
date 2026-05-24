@@ -29,9 +29,9 @@
 					> might be a bit sad with all that "Marvel fatigue" talk.
 				</p>
 				<p>
-					marvelfansforfeige.com is a small corner of the web where fans from everywhere can leave
-					short messages to the OG head of Marvel. Hopefully one day Mr. Feige checks us out, and
-					sees there are still a lot of us cheering him on.
+					marvelfansforfeige.com is a small corner of the web where fans everywhere can leave short
+					messages to the OG head of Marvel. Hopefully one day Mr. Feige checks us out, and sees
+					there are still a lot of us cheering/ranting him on.
 				</p>
 				<p>
 					Click <a href="/comments" class="text-xp-blue underline">All Messages</a> to read everything
@@ -48,7 +48,7 @@
 				<p class="font-tahoma text-sm">
 					Found a bug? Have a feature request? Feel free to reach out! <a
 						href="mailto:chevaliertgf@gmail.com"
-						class="text-xp-blue underline">chevaliertgf@gmail.com</a
+						class="text-xp-blue underline">hotelindiigo@gmail.com</a
 					>
 				</p>
 
@@ -65,7 +65,7 @@
 	</div>
 
 	<aside class="flex flex-col gap-3">
-		<XPWindow title="Support — donate.exe" icon="💛">
+		<XPWindow title="Support — tip.exe" icon="💛">
 			<p class="font-tahoma text-sm">
 				Made from a Malaysian fan who wants to keep this site alive. If it made you smile, throw a
 				coffee my way.
@@ -77,7 +77,7 @@
 					rel="noreferrer"
 					class="font-coral-pixels inline-block max-w-fit rounded-full border-2 border-amber-500 bg-gradient-to-br from-amber-500 via-yellow-200 to-amber-500 px-4 text-2xl font-bold italic shadow-md hover:scale-105"
 				>
-					Donate
+					Tip
 				</a>
 			</div>
 		</XPWindow>
