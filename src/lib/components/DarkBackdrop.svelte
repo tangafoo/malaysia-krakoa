@@ -1,67 +1,108 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
-	import { onMount } from 'svelte';
+	import StoneGlow from './StoneGlow.svelte';
+	import mindStone from '$lib/assets/mindstone.png';
+	import spaceStone from '$lib/assets/spacestone.png';
+	import realityStone from '$lib/assets/realitystone.png';
+	import powerStone from '$lib/assets/powerstone.png';
+	import timeStone from '$lib/assets/timestone.png';
+	import soulStone from '$lib/assets/souldstone.png';
 
-	// Neon blobs — iTunes/Music visualizer vibe.
-	// Layered with mix-blend-mode: screen so overlaps glow brighter.
-	const blobs = [
-		{ color: '#ff006e', size: 720, left: '12%', top: '18%' }, // hot pink
-		{ color: '#8338ec', size: 820, left: '78%', top: '12%' }, // electric purple
-		{ color: '#3a86ff', size: 760, left: '50%', top: '50%' }, // bright blue
-		{ color: '#06ffa5', size: 640, left: '20%', top: '78%' }, // cyber green
-		{ color: '#ffbe0b', size: 700, left: '85%', top: '72%' }, // gold
-		{ color: '#ff4d00', size: 760, left: '50%', top: '92%' } // orange-red
-	];
-
-	const blobEls: HTMLDivElement[] = [];
-
-	onMount(async () => {
-		if (!browser) return;
-		try {
-			const { gsap } = await import('gsap');
-			blobEls.forEach((el) => {
-				if (!el) return;
-				gsap.set(el, {
-					xPercent: (Math.random() - 0.5) * 80,
-					yPercent: (Math.random() - 0.5) * 80
-				});
-				const animateNext = () => {
-					gsap.to(el, {
-						xPercent: (Math.random() - 0.5) * 120,
-						yPercent: (Math.random() - 0.5) * 120,
-						scale: 0.65 + Math.random() * 0.9,
-						duration: 8 + Math.random() * 8,
-						ease: 'sine.inOut',
-						onComplete: animateNext
-					});
-				};
-				animateNext();
-			});
-		} catch {
-			// GSAP unavailable — blobs sit at their CSS positions, still visible
+	// Each stone gets a unique Lissajous (ax:ay) ratio so their paths weave through
+	// each other — different shapes sharing one global clock.
+	const stones = [
+		{
+			color: '#ff006e',
+			size: 720,
+			left: '12%',
+			top: '18%',
+			stone: realityStone,
+			ax: 1,
+			ay: 2,
+			period: 50,
+			phaseX: 0,
+			phaseY: Math.PI / 2,
+			depthPeriod: 10,
+			depthPhase: 0
+		},
+		{
+			color: '#8338ec',
+			size: 820,
+			left: '78%',
+			top: '12%',
+			stone: powerStone,
+			ax: 2,
+			ay: 3,
+			period: 52,
+			phaseX: 0.5,
+			phaseY: 0,
+			depthPeriod: 16,
+			depthPhase: 1.3
+		},
+		{
+			color: '#3a86ff',
+			size: 760,
+			left: '50%',
+			top: '50%',
+			stone: spaceStone,
+			ax: 3,
+			ay: 2,
+			period: 56,
+			phaseX: Math.PI / 3,
+			phaseY: Math.PI / 4,
+			depthPeriod: 16,
+			depthPhase: 2.1
+		},
+		{
+			color: '#06ffa5',
+			size: 640,
+			left: '20%',
+			top: '78%',
+			stone: timeStone,
+			ax: 3,
+			ay: 4,
+			period: 67,
+			phaseX: 1.7,
+			phaseY: 0.3,
+			depthPeriod: 18,
+			depthPhase: 0.8
+		},
+		{
+			color: '#ffbe0b',
+			size: 700,
+			left: '85%',
+			top: '72%',
+			stone: mindStone,
+			ax: 2,
+			ay: 5,
+			period: 60,
+			phaseX: 0.9,
+			phaseY: 1.2,
+			depthPeriod: 15,
+			depthPhase: 3.0
+		},
+		{
+			color: '#ff4d00',
+			size: 760,
+			left: '50%',
+			top: '92%',
+			stone: soulStone,
+			ax: 4,
+			ay: 3,
+			period: 60,
+			phaseX: 2.0,
+			phaseY: 0.7,
+			depthPeriod: 12,
+			depthPhase: 1.8
 		}
-	});
+	];
 </script>
 
 <div
-	class="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#050510]"
+	class="pointer-events-none fixed inset-0 z-0 isolate transform-gpu overflow-hidden bg-[#050510]"
 	aria-hidden="true"
 >
-	{#each blobs as blob, i (i)}
-		<div
-			bind:this={blobEls[i]}
-			class="absolute -translate-x-1/2 -translate-y-1/2 rounded-full will-change-transform"
-			style="
-				left: {blob.left};
-				top: {blob.top};
-				width: {blob.size}px;
-				height: {blob.size}px;
-				background: radial-gradient(circle, {blob.color} 0%, transparent 70%);
-				filter: blur(80px);
-				mix-blend-mode: screen;
-				opacity: 0.95;
-			"
-		></div>
+	{#each stones as s (s.stone)}
+		<StoneGlow {...s} />
 	{/each}
 	<div
 		class="absolute inset-0"

@@ -23,6 +23,10 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Marvel Fans for Feige</title>
+</svelte:head>
+
 {#snippet composer()}
 	<XPWindow title="Compose Message for Kevin.exe" icon="✉️">
 		<form

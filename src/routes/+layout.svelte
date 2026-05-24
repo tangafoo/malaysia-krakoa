@@ -24,20 +24,20 @@
 </script>
 
 <svelte:head>
-	<title>marvelfansforfeige.com — fan letters for Kevin</title>
+	<title>Marvel Fans for Feige</title>
 	<meta
 		name="description"
 		content="A guestbook of love letters to Kevin Feige from Marvel fans worldwide. Inspired by Thunderbolts*."
 	/>
 	<meta property="og:type" content="website" />
 	<meta property="og:site_name" content="marvelfansforfeige.com" />
-	<meta property="og:title" content="Marvel fans for Feige" />
+	<meta property="og:title" content="Marvel Fans for Feige" />
 	<meta
 		property="og:description"
 		content="The singular message Marvel fans want to send to Kevin Feige."
 	/>
 	<meta name="twitter:card" content="summary_large_image" />
-	<meta name="twitter:title" content="Marvel fans for Feige" />
+	<meta name="twitter:title" content="Marvel Fans for Feige" />
 	<meta
 		name="twitter:description"
 		content="The singular message Marvel fans want to send to Kevin Feige."

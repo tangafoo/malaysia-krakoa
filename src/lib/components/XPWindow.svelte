@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import OverflowMarquee from './OverflowMarquee.svelte';
 
 	let {
 		title,
@@ -16,6 +17,8 @@
 		titleClass?: string;
 		bodyClass?: string;
 	} = $props();
+
+	let collapsed = $state(false);
 </script>
 
 <div class="xp-bevel bg-xp-gray flex flex-col overflow-hidden rounded-lg shadow-lg">
@@ -23,15 +26,21 @@
 		{#if icon}
 			<span aria-hidden="true" class="text-base leading-none">{icon}</span>
 		{/if}
-		<span class="font-tahoma flex-1 truncate text-sm">{title}</span>
+		<div class="font-tahoma min-w-0 flex-1 text-sm">
+			<OverflowMarquee duration="12s">{title}</OverflowMarquee>
+		</div>
 		<div class="flex gap-1">
 			{#if actions}{@render actions()}{/if}
 			<button
 				type="button"
-				aria-label="Minimize"
-				class="xp-bevel font-tahoma bg-xp-gray flex h-5 w-5 items-center justify-center rounded-sm pb-1 text-sm font-bold text-black"
+				onclick={() => (collapsed = !collapsed)}
+				aria-label={collapsed ? 'Restore' : 'Minimize'}
+				aria-pressed={collapsed}
+				class="xp-bevel xp-button font-tahoma bg-xp-gray flex h-5 w-5 items-center justify-center rounded-sm text-xs font-bold text-black {collapsed
+					? ''
+					: 'pb-1 text-sm'}"
 			>
-				_
+				{collapsed ? '▢' : '_'}
 			</button>
 			<button
 				type="button"
@@ -49,7 +58,9 @@
 			</button>
 		</div>
 	</div>
-	<div class="bg-xp-tan p-3 {bodyClass}">
-		{@render children()}
-	</div>
+	{#if !collapsed}
+		<div class="bg-xp-tan p-3 {bodyClass}">
+			{@render children()}
+		</div>
+	{/if}
 </div>
