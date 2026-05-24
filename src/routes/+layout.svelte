@@ -6,6 +6,8 @@
 	import Taskbar from '$lib/components/Taskbar.svelte';
 	import HitCounter from '$lib/components/HitCounter.svelte';
 	import Marquee from '$lib/components/Marquee.svelte';
+	import DarkBackdrop from '$lib/components/DarkBackdrop.svelte';
+	import PresenceCounter from '$lib/components/PresenceCounter.svelte';
 
 	let { children, data } = $props();
 
@@ -27,24 +29,29 @@
 		name="description"
 		content="A guestbook of love letters to Kevin Feige from Marvel fans worldwide. Inspired by Thunderbolts*."
 	/>
+	<meta property="og:type" content="website" />
+	<meta property="og:site_name" content="marvelfansforfeige.com" />
 	<meta property="og:title" content="Marvel fans for Feige" />
 	<meta
 		property="og:description"
 		content="The singular message Marvel fans want to send to Kevin Feige."
 	/>
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:title" content="Marvel fans for Feige" />
+	<meta
+		name="twitter:description"
+		content="The singular message Marvel fans want to send to Kevin Feige."
+	/>
 </svelte:head>
 
-<div data-theme="retro" class="font-tahoma min-h-screen text-black">
+<DarkBackdrop />
+<div class="font-tahoma relative z-10 min-h-screen text-black">
 	<Taskbar />
 
 	<div class="mx-auto mt-3 max-w-6xl px-3">
-		<div class="xp-bevel bg-xp-gray flex flex-wrap items-stretch gap-2 p-2">
+		<div class="xp-bevel bg-xp-gray flex flex-wrap items-stretch gap-2 p-2 shadow-lg">
 			<HitCounter count={data.totalCount} label="MESSAGES" digits={6} />
-			<div class="xp-bevel bg-xp-gray inline-flex items-center gap-2 px-2 py-1 opacity-70">
-				<span class="font-tahoma text-xs font-bold uppercase">Online</span>
-				<span class="crt-screen xp-bevel-inset px-2 py-0.5 text-2xl tracking-widest">--</span>
-				<span class="font-tahoma text-[10px] text-[#404040]">(soon™)</span>
-			</div>
+			<PresenceCounter />
 			<div class="min-w-0 flex-1">
 				<Marquee>
 					<span>
@@ -61,8 +68,7 @@
 	</main>
 	<footer class="mx-auto max-w-6xl px-3 py-6 text-center">
 		<div class="xp-bevel bg-xp-tan font-tahoma inline-block px-3 py-2 text-xs">
-			Best viewed in <span class="font-bold">Internet Explorer 6</span>. ✦ Made with love by a
-			Malaysian fan. ✦ <a href="/about" class="text-xp-blue underline">About</a>
+			Built with love by a Malaysian fan ✦ <a href="/about" class="text-xp-blue underline">About</a>
 		</div>
 	</footer>
 </div>

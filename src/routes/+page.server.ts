@@ -13,11 +13,23 @@ export const load: ServerLoad = async () => {
 		supabase.from('comments').select('*', { count: 'exact', head: true }).eq('status', 'approved'),
 		getLatestMCU()
 	]);
+
+	let spotlightCounts: { hearts: number; broken_hearts: number } | null = null;
+	if (spotlight.tmdb_id) {
+		const { data } = await supabase
+			.from('spotlight_sentiment_counts')
+			.select('*')
+			.eq('spotlight_key', String(spotlight.tmdb_id))
+			.maybeSingle();
+		spotlightCounts = data ?? { hearts: 0, broken_hearts: 0 };
+	}
+
 	return {
 		top5: (topRes.data ?? []) as RankedComment[],
 		totalCount: totalRes.count ?? 0,
 		quote: quoteOfTheDay(),
-		spotlight
+		spotlight,
+		spotlightCounts
 	};
 };
 

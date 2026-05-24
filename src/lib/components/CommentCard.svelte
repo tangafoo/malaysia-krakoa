@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Comment } from '$lib/types';
+	import { formatCommentDate } from '$lib/date';
 	import XPButton from './XPButton.svelte';
 
 	let {
@@ -58,12 +59,12 @@
 	}
 
 	const displayName = $derived(comment.name?.trim() || 'Anonymous Fan');
-	const sentAt = $derived(new Date(comment.created_at).toLocaleString());
+	const sentAt = $derived(formatCommentDate(comment.created_at));
 </script>
 
 <article class="xp-bevel bg-white">
 	<header
-		class="font-tahoma flex items-center gap-2 border-b border-[#808080] bg-gradient-to-b from-[#ece9d8] to-[#d4d0c8] px-2 py-1 text-xs"
+		class="font-tahoma flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-[#808080] bg-gradient-to-b from-[#ece9d8] to-[#d4d0c8] px-2 py-1 text-xs"
 	>
 		{#if rank}
 			<span class="bg-red-600 px-1.5 py-0.5 font-bold text-white">#{rank}</span>

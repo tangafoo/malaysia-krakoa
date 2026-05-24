@@ -1,6 +1,7 @@
 import { TMDB_API_KEY } from '$env/static/private';
 
 export interface MCUSpotlight {
+	tmdb_id: number | null;
 	title: string;
 	overview: string;
 	poster_url: string | null;
@@ -15,6 +16,7 @@ const MARVEL_STUDIOS_COMPANY_ID = 420;
  */
 export async function getLatestMCU(): Promise<MCUSpotlight> {
 	const fallback: MCUSpotlight = {
+		tmdb_id: null,
 		title: 'Thunderbolts*',
 		overview:
 			'A group of supervillains and anti-heroes are recruited for a black-ops mission. The reason this whole site exists.',
@@ -33,6 +35,7 @@ export async function getLatestMCU(): Promise<MCUSpotlight> {
 		if (!res.ok) return fallback;
 		const data = (await res.json()) as {
 			results?: Array<{
+				id: number;
 				title: string;
 				overview: string;
 				poster_path: string | null;
@@ -42,6 +45,7 @@ export async function getLatestMCU(): Promise<MCUSpotlight> {
 		const movie = data.results?.[0];
 		if (!movie) return fallback;
 		return {
+			tmdb_id: movie.id,
 			title: movie.title,
 			overview: movie.overview,
 			poster_url: movie.poster_path ? `https://image.tmdb.org/t/p/w342${movie.poster_path}` : null,

@@ -32,6 +32,16 @@
 	const sortKeys: SortKey[] = ['hot', 'new', 'top', 'controversial'];
 </script>
 
+<svelte:head>
+	<title>All messages to Kevin Feige · marvelfansforfeige.com</title>
+	<meta
+		name="description"
+		content="Browse every message Marvel fans have sent to Kevin Feige. Sort by hot, new, top, or controversial. Upvote the takes you agree with."
+	/>
+	<meta property="og:title" content="All messages to Kevin Feige" />
+	<meta property="og:description" content="Every Marvel fan letter, sortable and upvotable." />
+</svelte:head>
+
 <XPWindow title="All Messages to Kevin — Browse &amp; Vote" icon="📂">
 	<div class="flex flex-wrap items-center gap-2 border-b border-[#808080] pb-2">
 		{#each sortKeys as s (s)}

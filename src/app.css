@@ -1,17 +1,17 @@
-@import url('https://fonts.googleapis.com/css2?family=Ballet:opsz@16..72&family=Pixelify+Sans:wght@400..700&family=VT323&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Ballet:opsz@16..72&family=Bokor&family=Coral+Pixels&family=Kings&family=Pixelify+Sans:wght@400..700&family=VT323&display=swap');
 
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
-@plugin "daisyui" {
-	themes: retro --default;
-}
 
 @theme {
 	--font-pixelify: 'Pixelify Sans', sans-serif;
 	--font-ballet: 'Ballet', sans-serif;
 	--font-vt323: 'VT323', monospace;
 	--font-tahoma: Tahoma, 'MS Sans Serif', Geneva, Verdana, sans-serif;
+	--font-kings: 'Kings', 'Playfair Display', Georgia, serif;
+	--font-bokor: 'Bokor', 'Cinzel', Georgia, serif;
+	--font-coral-pixels: 'Coral Pixels', 'Pixelify Sans', monospace;
 
 	--color-xp-blue: #0058e9;
 	--color-xp-blue-light: #3493ff;
@@ -23,9 +23,9 @@
 
 body {
 	font-family: Tahoma, 'MS Sans Serif', Geneva, Verdana, sans-serif;
-	background: linear-gradient(180deg, #2b8df0 0%, #5db4e8 50%, #74a224 50%, #8fc44a 100%);
-	background-attachment: fixed;
+	background: #050510;
 	min-height: 100vh;
+	color: white;
 }
 
 /* XP-style 3D bevel — outset (default) */

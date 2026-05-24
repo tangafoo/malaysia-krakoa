@@ -5,6 +5,15 @@
 
 <svelte:head>
 	<title>About — marvelfansforfeige.com</title>
+	<meta
+		name="description"
+		content="Why this site exists: after Thunderbolts*, a Malaysian Marvel fan built a guestbook for Kevin Feige. Made with SvelteKit, Supabase, Tailwind, and love."
+	/>
+	<meta property="og:title" content="About marvelfansforfeige.com" />
+	<meta
+		property="og:description"
+		content="A love letter project from a Malaysian Marvel fan to Kevin Feige."
+	/>
 </svelte:head>
 
 <div class="flex flex-col gap-4 lg:grid lg:grid-cols-3">

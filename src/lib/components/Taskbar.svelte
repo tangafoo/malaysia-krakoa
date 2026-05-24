@@ -22,16 +22,8 @@
 </script>
 
 <div
-	class="xp-bevel sticky top-0 z-50 flex h-9 items-center gap-1 bg-gradient-to-b from-[#3493ff] via-[#0058e9] to-[#0044b6] px-1"
+	class="xp-bevel sticky top-0 z-50 flex h-9 items-center gap-1 bg-gradient-to-b from-[#3493ff] via-[#0058e9] to-[#0044b6] px-1 shadow-lg"
 >
-	<a
-		href="/"
-		class="xp-bevel font-pixelify flex h-7 items-center gap-1 rounded-r-full bg-gradient-to-b from-[#5db4e8] via-[#74a224] to-[#5a8019] px-3 text-sm font-bold text-white no-underline"
-		aria-label="Start"
-	>
-		<span class="text-base">⊞</span> Start
-	</a>
-
 	{#each navLinks as link (link.href)}
 		<a
 			href={link.href}
