@@ -83,9 +83,9 @@
 			{/if}
 		</p>
 	{:else}
-		<div class="flex flex-col gap-2">
-			{#each data.comments as comment, i (comment.id)}
-				<div class={i % 2 === 0 ? 'bg-[#f4f1e1]' : 'bg-[#e8e3cf]'}>
+		<div class="columns-1 gap-3 sm:columns-2">
+			{#each data.comments as comment (comment.id)}
+				<div class="mb-3 break-inside-avoid">
 					<CommentCard {comment} />
 				</div>
 			{/each}

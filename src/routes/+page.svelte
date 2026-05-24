@@ -144,7 +144,7 @@
 				No messages yet. Be the first to send one!
 			</p>
 		{:else}
-			<div class="flex flex-col gap-2">
+			<div class="flex flex-col gap-3">
 				{#each data.top5 as comment, i (comment.id)}
 					<CommentCard {comment} rank={i + 1} />
 				{/each}

@@ -64,27 +64,28 @@
 
 <article class="xp-bevel bg-white">
 	<header
-		class="font-tahoma flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-[#808080] bg-gradient-to-b from-[#ece9d8] to-[#d4d0c8] px-2 py-1 text-xs"
+		class="font-tahoma flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-[#7a9bc4] bg-gradient-to-b from-[#dcebff] to-[#a4c4eb] px-2 py-1 text-xs"
 	>
+		<span aria-hidden="true" class="leading-none">💌</span>
 		{#if rank}
 			<span class="bg-red-600 px-1.5 py-0.5 font-bold text-white">#{rank}</span>
 		{/if}
-		<span class="font-bold">From: {displayName}</span>
-		<span class="text-[#404040]">· {sentAt}</span>
+		<span class="text-xp-blue font-bold">{displayName}</span>
+		<span class="text-[#404060]">· {sentAt}</span>
 		<div class="flex-1"></div>
 		{#if showPermalink}
-			<a href={`/comment/${comment.id}`} class="text-xp-blue underline hover:text-[#3493ff]">link</a
+			<a href={`/comment/${comment.id}`} class="text-xp-blue underline hover:text-[#0044b6]">link</a
 			>
 		{/if}
 	</header>
 
-	<div class="px-3 py-3">
-		<p class="font-tahoma text-base leading-snug whitespace-pre-wrap text-black">
+	<div class="bg-white px-3 py-2">
+		<p class="font-tahoma text-sm leading-snug whitespace-pre-wrap text-black">
 			{comment.content}
 		</p>
 	</div>
 
-	<footer class="bg-xp-tan flex items-center gap-2 border-t border-[#808080] px-2 py-1.5">
+	<footer class="bg-xp-gray flex items-center gap-2 border-t border-[#808080] px-2 py-1">
 		<XPButton onclick={() => vote(1)} disabled={!!voted} ariaLabel="Upvote">
 			<span class="text-base leading-none">👍</span>
 			<span class="font-tahoma tabular-nums">{upvotes}</span>
