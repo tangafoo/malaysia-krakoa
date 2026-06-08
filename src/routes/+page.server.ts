@@ -4,6 +4,13 @@ import { getClientIp, voterHash } from '$lib/server/hash';
 import { moderate } from '$lib/server/moderation';
 import { getMCUSpotlights } from '$lib/server/tmdb';
 import { quoteOfTheDay } from '$lib/feige-quote';
+import {
+	basePrimaryFlairsByPopularity,
+	PRIMARY_KEYS,
+	SECONDARY_KEYS,
+	type PrimaryFlairKey
+} from '$lib/flairs';
+import { rollDailyStone, todayUtc } from '$lib/server/stone-roll';
 import type { RankedComment } from '$lib/types';
 
 export const load: ServerLoad = async ({ request, getClientAddress }) => {
@@ -14,7 +21,7 @@ export const load: ServerLoad = async ({ request, getClientAddress }) => {
 	const hash = await voterHash(ip, ua);
 	const today = new Date().toISOString().slice(0, 10);
 
-	const [topRes, totalRes, spotlights, refreshRes] = await Promise.all([
+	const [topRes, totalRes, spotlights, refreshRes, flairUsageRes] = await Promise.all([
 		supabase.from('ranked_comments').select('*').order('hot_score', { ascending: false }).limit(3),
 		supabase.from('comments').select('*', { count: 'exact', head: true }).eq('status', 'approved'),
 		getMCUSpotlights(),
@@ -23,8 +30,28 @@ export const load: ServerLoad = async ({ request, getClientAddress }) => {
 			.select('quote_text, quote_source')
 			.eq('submitter_hash', hash)
 			.eq('refresh_date', today)
-			.maybeSingle()
+			.maybeSingle(),
+		supabase
+			.from('comments')
+			.select('primary_flair')
+			.eq('status', 'approved')
+			.not('primary_flair', 'is', null)
 	]);
+
+	const primaryCounts: Record<string, number> = {};
+	for (const row of (flairUsageRes.data ?? []) as { primary_flair: string | null }[]) {
+		if (row.primary_flair) {
+			primaryCounts[row.primary_flair] = (primaryCounts[row.primary_flair] ?? 0) + 1;
+		}
+	}
+
+	const composerPrimaryFlairKeys: PrimaryFlairKey[] = basePrimaryFlairsByPopularity(
+		primaryCounts
+	).map((f) => f.key);
+	const rolledStoneKey = await rollDailyStone(hash, todayUtc());
+	if (rolledStoneKey) {
+		composerPrimaryFlairKeys.push(rolledStoneKey);
+	}
 
 	const spotlightKeys = spotlights.map((s) => (s.tmdb_id ? String(s.tmdb_id) : null));
 	const knownKeys = spotlightKeys.filter((k): k is string => k !== null);
@@ -55,7 +82,8 @@ export const load: ServerLoad = async ({ request, getClientAddress }) => {
 		quote,
 		quoteRefreshedToday: !!refreshRes.data,
 		spotlights,
-		spotlightCounts
+		spotlightCounts,
+		composerPrimaryFlairKeys
 	};
 };
 
@@ -64,6 +92,10 @@ export const actions: Actions = {
 		const form = await request.formData();
 		const name = (form.get('name')?.toString() ?? '').trim().slice(0, 40) || null;
 		const content = (form.get('content')?.toString() ?? '').trim();
+		const primaryRaw = (form.get('primary_flair')?.toString() ?? '').trim();
+		const secondaryRaw = (form.get('secondary_flair')?.toString() ?? '').trim();
+		const primary_flair = PRIMARY_KEYS.has(primaryRaw) ? primaryRaw : null;
+		const secondary_flair = SECONDARY_KEYS.has(secondaryRaw) ? secondaryRaw : null;
 
 		if (content.length < 1 || content.length > 500) {
 			return fail(400, { name, content, error: 'Message must be 1–500 characters.' });
@@ -95,9 +127,15 @@ export const actions: Actions = {
 		const status = moderation.flagged ? 'pending' : 'approved';
 		const moderation_flags = moderation.flagged ? moderation.categories : null;
 
-		const { error } = await supabase
-			.from('comments')
-			.insert({ name, content, status, submitter_hash: hash, moderation_flags });
+		const { error } = await supabase.from('comments').insert({
+			name,
+			content,
+			status,
+			submitter_hash: hash,
+			moderation_flags,
+			primary_flair,
+			secondary_flair
+		});
 
 		if (error) {
 			console.error('insert comment failed', error);

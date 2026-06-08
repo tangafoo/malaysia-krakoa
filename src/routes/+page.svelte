@@ -5,6 +5,15 @@
 	import CommentCard from '$lib/components/CommentCard.svelte';
 	import SpotlightVote from '$lib/components/SpotlightVote.svelte';
 	import KevinTooltip from '$lib/components/KevinTooltip.svelte';
+	import FlairPill from '$lib/components/FlairPill.svelte';
+	import {
+		SECONDARY_FLAIRS,
+		primaryByKey,
+		secondaryByKey,
+		type PrimaryFlairKey,
+		type SecondaryFlairKey
+	} from '$lib/flairs';
+	import { sounds } from '$lib/sounds.svelte';
 	import { cubicOut } from 'svelte/easing';
 	import { formatReleaseDate } from '$lib/date';
 
@@ -28,6 +37,8 @@
 	let submitting = $state(false);
 	let content = $state('');
 	let name = $state('');
+	let selectedPrimary = $state<PrimaryFlairKey | null>(null);
+	let selectedSecondary = $state<SecondaryFlairKey | null>(null);
 	let spotlightExpanded = $state(false);
 	let spotlightIndex = $state(0);
 	let currentQuote = $state(data.quote);
@@ -73,6 +84,12 @@
 			formEl?.requestSubmit();
 		}
 	}
+
+	const composerPrimaryFlairs = $derived(
+		data.composerPrimaryFlairKeys.map((k) => primaryByKey(k)).filter((f) => !!f)
+	);
+	const selectedPrimaryFlair = $derived(primaryByKey(selectedPrimary));
+	const selectedSecondaryFlair = $derived(secondaryByKey(selectedSecondary));
 </script>
 
 <svelte:head>
@@ -93,6 +110,11 @@
 					if (result.type === 'success') {
 						content = '';
 						name = '';
+						selectedPrimary = null;
+						selectedSecondary = null;
+						sounds.play('send');
+					} else if (result.type === 'failure' || result.type === 'error') {
+						sounds.play('error');
 					}
 				};
 			}}
@@ -111,9 +133,15 @@
 			</label>
 
 			<label class="font-tahoma flex flex-col gap-1 text-sm">
-				<span class="font-bold">
-					Message for <KevinTooltip>Kevin Feige</KevinTooltip>
+				<span class="flex flex-wrap items-center gap-x-1 gap-y-1 font-bold">
+					<span>Message for <KevinTooltip>Kevin Feige</KevinTooltip></span>
 					<span class="font-normal text-[#404040]">({remaining} chars left)</span>
+					{#if selectedPrimaryFlair}
+						<FlairPill flair={selectedPrimaryFlair} colored />
+					{/if}
+					{#if selectedSecondaryFlair}
+						<FlairPill flair={selectedSecondaryFlair} colored />
+					{/if}
 				</span>
 				<textarea
 					name="content"
@@ -126,6 +154,35 @@
 					class="xp-bevel-inset font-tahoma bg-white px-2 py-1 text-base"
 				></textarea>
 			</label>
+
+			<input type="hidden" name="primary_flair" value={selectedPrimary ?? ''} />
+			<input type="hidden" name="secondary_flair" value={selectedSecondary ?? ''} />
+
+			<div class="flex flex-col gap-1 text-sm">
+				<div class="flex flex-wrap items-center gap-1">
+					<span class="font-tahoma w-14 text-xs font-bold text-[#404040]">Flair:</span>
+					{#each composerPrimaryFlairs as flair (flair.key)}
+						<FlairPill
+							{flair}
+							interactive
+							selected={selectedPrimary === flair.key}
+							onclick={() => (selectedPrimary = selectedPrimary === flair.key ? null : flair.key)}
+						/>
+					{/each}
+				</div>
+				<div class="flex flex-wrap items-center gap-1">
+					<span class="font-tahoma w-14 text-xs font-bold text-[#404040]">Tone:</span>
+					{#each SECONDARY_FLAIRS as flair (flair.key)}
+						<FlairPill
+							{flair}
+							interactive
+							selected={selectedSecondary === flair.key}
+							onclick={() =>
+								(selectedSecondary = selectedSecondary === flair.key ? null : flair.key)}
+						/>
+					{/each}
+				</div>
+			</div>
 
 			{#if form?.error}
 				<div class="xp-bevel-inset bg-[#ffdddd] px-2 py-1 text-sm text-red-800">
@@ -142,9 +199,24 @@
 				<span class="font-tahoma text-xs text-[#404040]">
 					The Watcher sees all 👀. ⌘+Enter to send.
 				</span>
-				<XPButton type="submit" variant="primary" disabled={submitting || !content.trim()}>
-					{submitting ? 'Sending…' : 'Send'}
-				</XPButton>
+				<div class="flex items-center gap-2">
+					{#if content || name || selectedPrimary || selectedSecondary}
+						<XPButton
+							onclick={() => {
+								content = '';
+								name = '';
+								selectedPrimary = null;
+								selectedSecondary = null;
+							}}
+							dataClickSound="clear"
+						>
+							Clear
+						</XPButton>
+					{/if}
+					<XPButton type="submit" variant="primary" disabled={submitting || !content.trim()}>
+						{submitting ? 'Sending…' : 'Send'}
+					</XPButton>
+				</div>
 			</div>
 		</form>
 	</XPWindow>

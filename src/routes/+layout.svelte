@@ -8,6 +8,8 @@
 	import Marquee from '$lib/components/Marquee.svelte';
 	import DarkBackdrop from '$lib/components/DarkBackdrop.svelte';
 	import PresenceCounter from '$lib/components/PresenceCounter.svelte';
+	import ClickSound from '$lib/components/ClickSound.svelte';
+	import StoneGreeting from '$lib/components/StoneGreeting.svelte';
 
 	let { children, data } = $props();
 
@@ -45,6 +47,8 @@
 </svelte:head>
 
 <DarkBackdrop />
+<ClickSound />
+<StoneGreeting stoneKey={data.assignedStoneKey} />
 <div class="font-tahoma relative z-10 min-h-screen text-black">
 	<Taskbar />
 

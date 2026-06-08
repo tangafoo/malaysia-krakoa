@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
+	import { sounds } from '$lib/sounds.svelte';
 
 	let time = $state('--:--');
 
@@ -40,7 +41,15 @@
 	<div class="flex-1"></div>
 
 	<div class="xp-bevel-inset font-tahoma bg-xp-gray flex h-7 items-center gap-1 px-2 text-xs">
-		<span aria-hidden="true">🔊</span>
+		<button
+			type="button"
+			onclick={() => sounds.toggle()}
+			data-click-sound="none"
+			aria-label={sounds.enabled ? 'Mute sounds' : 'Unmute sounds'}
+			class="cursor-pointer border-0 bg-transparent p-0 leading-none"
+		>
+			{sounds.enabled ? '🔊' : '🔇'}
+		</button>
 		<span aria-hidden="true">📡</span>
 		<span class="font-bold tabular-nums">{time}</span>
 	</div>

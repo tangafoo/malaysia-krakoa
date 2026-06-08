@@ -10,6 +10,8 @@ export interface Comment {
 	moderation_flags: Record<string, unknown> | null;
 	submitter_hash: string;
 	created_at: string;
+	primary_flair: string | null;
+	secondary_flair: string | null;
 }
 
 export interface RankedComment extends Comment {

@@ -1,5 +1,6 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { getServerSupabase } from '$lib/server/supabase';
+import { primaryByKey, secondaryByKey } from '$lib/flairs';
 
 function escape(text: string): string {
 	return text
@@ -14,7 +15,7 @@ export const GET: RequestHandler = async ({ params }) => {
 	const supabase = getServerSupabase();
 	const { data } = await supabase
 		.from('comments')
-		.select('id, name, content, created_at')
+		.select('id, name, content, created_at, primary_flair, secondary_flair')
 		.eq('id', params.id!)
 		.eq('status', 'approved')
 		.maybeSingle();
@@ -25,6 +26,17 @@ export const GET: RequestHandler = async ({ params }) => {
 
 	const author = (data.name?.trim() || 'Anonymous Fan').slice(0, 60);
 	const content = data.content.length > 240 ? data.content.slice(0, 237) + '…' : data.content;
+
+	const primaryFlair = primaryByKey(data.primary_flair);
+	const secondaryFlair = secondaryByKey(data.secondary_flair);
+
+	const flairBadge = (label: string, bg: string, fg: string, sparkle: boolean) =>
+		`<div style="display: flex; align-items: center; gap: 8px; background: ${bg}; color: ${fg}; padding: 8px 18px; border-radius: 999px; font-size: 22px; font-weight: 700;">${sparkle ? '<span>✨</span>' : ''}<span>${escape(label)}</span>${sparkle ? '<span>✨</span>' : ''}</div>`;
+
+	const flairBadges =
+		primaryFlair || secondaryFlair
+			? `<div style="display: flex; gap: 12px; margin-bottom: 16px;">${primaryFlair ? flairBadge(primaryFlair.label, primaryFlair.ogHex, primaryFlair.ogTextHex, primaryFlair.rare === true) : ''}${secondaryFlair ? flairBadge(`${secondaryFlair.emoji} ${secondaryFlair.label}`, secondaryFlair.ogHex, secondaryFlair.ogTextHex, false) : ''}</div>`
+			: '';
 
 	const html = `
 		<div style="width: 1200px; height: 630px; display: flex; flex-direction: column; padding: 64px; background: linear-gradient(135deg, #050510 0%, #0a0a1f 50%, #1a0a1f 100%); position: relative; font-family: 'Inter', system-ui, sans-serif;">
@@ -43,9 +55,12 @@ export const GET: RequestHandler = async ({ params }) => {
 				</div>
 			</div>
 
-			<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 24px;">
-				<div style="color: #fbbf24; font-size: 28px; font-weight: 700;">— ${escape(author)}</div>
-				<div style="color: rgba(255,255,255,0.6); font-size: 20px;">A fan letter for Kevin Feige</div>
+			<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 24px;">
+				${flairBadges}
+				<div style="display: flex; justify-content: space-between; align-items: flex-end;">
+					<div style="color: #fbbf24; font-size: 28px; font-weight: 700;">— ${escape(author)}</div>
+					<div style="color: rgba(255,255,255,0.6); font-size: 20px;">A fan letter for Kevin Feige</div>
+				</div>
 			</div>
 		</div>
 	`;

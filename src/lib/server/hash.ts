@@ -1,11 +1,11 @@
-import { DAILY_HASH_SALT } from '$env/static/private';
+import { VOTER_HASH_SALT } from '$env/static/private';
 
 /**
  * Hashes IP + UA + salt into a stable opaque identifier.
  * Used for soft dedup of votes/submissions without storing PII.
  */
 export async function voterHash(ip: string, ua: string): Promise<string> {
-	const input = `${ip}::${ua}::${DAILY_HASH_SALT}`;
+	const input = `${ip}::${ua}::${VOTER_HASH_SALT}`;
 	const buf = new TextEncoder().encode(input);
 	const digest = await crypto.subtle.digest('SHA-256', buf);
 	return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');

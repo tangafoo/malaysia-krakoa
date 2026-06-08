@@ -9,7 +9,8 @@
 		href,
 		children,
 		class: extraClass = '',
-		ariaLabel
+		ariaLabel,
+		dataClickSound
 	}: {
 		type?: 'button' | 'submit' | 'reset';
 		variant?: 'default' | 'primary' | 'danger';
@@ -19,6 +20,7 @@
 		children: Snippet;
 		class?: string;
 		ariaLabel?: string;
+		dataClickSound?: string;
 	} = $props();
 
 	const variantBg = {
@@ -32,6 +34,7 @@
 	<a
 		{href}
 		aria-label={ariaLabel}
+		data-click-sound={dataClickSound}
 		class="xp-bevel xp-button font-tahoma inline-flex items-center justify-center gap-1 px-3 py-1 text-sm font-bold no-underline {variantBg} {extraClass}"
 	>
 		{@render children()}
@@ -41,6 +44,7 @@
 		{type}
 		{disabled}
 		aria-label={ariaLabel}
+		data-click-sound={dataClickSound}
 		{onclick}
 		class="xp-bevel xp-button font-tahoma inline-flex items-center justify-center gap-1 px-3 py-1 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-60 {variantBg} {extraClass}"
 	>

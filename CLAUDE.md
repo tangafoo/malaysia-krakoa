@@ -37,16 +37,27 @@ src/
     date.ts                     Date helpers (formatReleaseDate, etc.).
     types.ts                    RankedComment + other shared TS types.
     supabase.ts                 Browser client (if any). Most usage is server.
+    flairs.ts                   Flair catalog (PRIMARY_FLAIRS, SECONDARY_FLAIRS) + helpers.
+                                Single source of truth for keys, labels, colors, OG hexes,
+                                icons. See "Flair system" below.
+    sounds.svelte.ts            Web Audio sounds singleton + localStorage mute toggle.
+                                See "Sound system" below.
     data/feige-quotes.json      Pool of Kevin Feige quotes.
     assets/                     Stone PNGs (mind/space/reality/power/time/sould).
                                 Note "sould" misspelling — keep as-is, it matches the file.
                                 Also kevin_feige.jpg used by KevinTooltip.
     components/                 All UI primitives — see "Components" below.
+    components/icons/           Inline SVG icon components for the 4 base primary flairs
+                                (Spidey, X-Men '97, Daredevil, Doomsday). Each accepts a
+                                `class` prop for sizing. Stones use PNG assets, not SVGs.
     server/
       supabase.ts               getServerSupabase() — service-role client.
-      hash.ts                   getClientIp() + voterHash(ip, ua) — used for rate limiting.
+      hash.ts                   getClientIp() + voterHash(ip, ua) — used for rate limiting
+                                AND as the deterministic input for stone identity.
       moderation.ts             OpenAI moderation wrapper.
       tmdb.ts                   getLatestMCU() — Spotlight data.
+      stone-roll.ts             assignedStone(hash) → permanent 1-of-6 stone per visitor.
+                                rollDailyStone(hash, dateUtc) → that stone or null (10% gate).
   routes/
     +layout.svelte              DarkBackdrop, Taskbar, HitCounter, Marquee, footer.
     +layout.server.ts           Loads totalCount for the marquee.
@@ -85,17 +96,78 @@ All in `src/lib/components/`:
 - **StoneGlow** — single blob unit: a `mix-blend-mode: screen` radial-gradient glow + a stone PNG centered on top. Animates via `gsap.ticker` using **Lissajous curves** (parametric `sin(ax·t)`, `sin(ay·t)`) so each stone traces a unique weaving path, plus an independent **depth cycle** that drives `opacity` (NOT blur — blur is static, see Gotchas) for a "closer/farther" illusion. Different `ax:ay` ratios across stones give them different shapes; shared global clock makes them feel like they're "talking" as patterns sync and desync.
 - **CopyLinkShare** — share menu for comment permalinks.
 - **KevinTooltip** — hover/tap "Kevin Feige" anywhere and his face pops up. Uses `position: fixed` to escape `overflow-hidden` containers. Hover-vs-tap detected via `matchMedia('(hover: hover)')` so mobile gets click-to-toggle without sticky-hover bugs. Scroll dismisses. Tooltip element renders Kevin's image with a Vista-style xp-bevel frame.
+- **FlairPill** — renders a primary or secondary flair. Three modes: static (default — xp-bevel-inset chrome on white), interactive (button with selected/unselected XP states, used in composer + `/comments` filter), and `colored` (static but with the flair's brand color — used everywhere visible flairs render: inline composer header pill, CommentCard, etc). Accepts `count?` to append `(N)`. Auto-renders the ✨ sparkle prefix/suffix + flair-shimmer CSS for rare stones.
+- **ClickSound** — invisible singleton component mounted once in `+layout.svelte`. Attaches a document-level `pointerdown` listener that fires sounds via Web Audio API. Skips body/text; matches `button, a, [role=button], input[type=...], summary, label, [data-click-sound]`. Reads `data-click-sound="<key>"` on the closest interactive element for sound overrides; `data-click-sound="none"` opts out entirely.
+- **StoneGreeting** — first-visit modal greeting the visitor with their fated Infinity Stone identity. Dismissal persisted in localStorage key `mff-stone-greeted`. Reads `data.assignedStoneKey` from layout context.
 
 ## Database schema (Supabase)
 
 Migrations live in `supabase/migrations/`. **Applied manually via the Supabase Web SQL Editor**, not via the CLI — open the project in the Supabase dashboard, paste the file contents into the SQL Editor, run. The numbered filenames (`0001_init.sql`, `0002_...`, etc.) are just for ordering and historical record; the dashboard doesn't track which have been applied.
 
-- **comments** — id, name?, content, status (`approved|pending|removed`), upvotes, downvotes, submitter_hash, moderation_flags, created_at.
+- **comments** — id, name?, content, status (`approved|pending|removed`), upvotes, downvotes, submitter_hash, moderation_flags, created_at, **primary_flair**, **secondary_flair** (both nullable text, added in `0006_flairs.sql`).
 - **votes** — comment_id, voter_hash, voter_cookie, vote_type (1 | -1). PK (comment_id, voter_hash) enforces one vote per visitor per comment.
 - **ranked_comments** (view) — comments + computed `hot_score` and `controversy_score`. ⚠ **Hot algorithm is buggy** — `(upvotes - downvotes) / power(age + 2, 1.5)` returns 0 for ALL unvoted comments, so ties happen at zero and the result effectively sorts by Postgres' natural row order ≈ newest first. To fix properly, use the Reddit-style formula: `sign(score) * log(max(abs(score), 1)) + epoch/45000`.
 - **admin_emails** — allowlist for the moderation UI.
 - **spotlight_votes** + **spotlight_sentiment_counts** (view) — hearts/broken-hearts per TMDB id.
 - **quote_refreshes** — submitter_hash + refresh_date (PK) — enforces one quote refresh per visitor per day.
+
+⚠ **Migration gotcha for views**: `0006_flairs.sql` had to `DROP VIEW + CREATE VIEW` for `ranked_comments` instead of `CREATE OR REPLACE VIEW`. Because the source table (`comments`) gained new columns, the `c.*` expansion shifts column positions in the view output, and Postgres refuses to rename existing view columns with `CREATE OR REPLACE`. Drop-and-recreate is safe — the view holds no rows; `hot_score` / `controversy_score` are computed per query (which is also why hot_score decays with time naturally).
+
+## Flair system (`src/lib/flairs.ts` is the source of truth)
+
+Two flair fields on every comment, both optional:
+
+- **`primary_flair`** — which MCU project the message is about. Ships with 4 base flairs (`spidey`, `x-men-97`, `daredevil`, `doomsday`) rendered as inline SVG components, **plus** 6 Infinity Stones (`stone-mind`, `stone-space`, `stone-reality`, `stone-power`, `stone-time`, `stone-soul`) rendered with the existing PNG assets and treated as `rare: true` (✨ sparkle + `flair-shimmer` animation).
+- **`secondary_flair`** — tone of the message: `suggestion`, `fanmail`. Plain `{emoji, label}`.
+
+**Composer ordering**: base primary flairs are sorted by **popularity** (count of approved comments using each key), computed in the page load function. Composer popularity helper: `basePrimaryFlairsByPopularity(counts)`. Secondary flairs use a fixed order.
+
+**Infinity Stone mechanic — "fated to one stone"**:
+- Each visitor is permanently assigned **one** stone via `assignedStone(submitter_hash)` (SHA-256 over `${hash}::stone-assignment`, mod 6). They will *only ever* see that one stone — they will never see the others' in their composer.
+- Each day, a 10% gate decides if their stone appears in their composer: `rollDailyStone(hash, dateUtc)` — deterministic SHA-256 over `${hash}::stone-day::${date}` so refreshes don't reroll today, but tomorrow's a fresh chance.
+- On first visit, `StoneGreeting` modal greets the visitor with their assigned stone identity. Layout server load computes `assignedStoneKey` and ships it in layout data. Popup dismissed = localStorage `mff-stone-greeted=yes`.
+- The roll rate constant is `STONE_DROP_RATE` in `stone-roll.ts`. Edit there to tune.
+
+**Cross-load serialization gotcha**: SvelteKit's `load` data is serialized with devalue, which can't stringify functions. `PrimaryFlair.icon` is a Svelte component (function under the hood), so server `load` functions must return `PrimaryFlairKey[]` (plain strings), and pages rehydrate via `primaryByKey()`. Same goes for OG image: the renderer (`api/og/[id]/+server.ts`) uses the catalog's `ogHex`/`ogTextHex` literals because workers-og can't run Svelte components.
+
+**Where flairs render**:
+- Composer (home) — interactive pill rows for primary + secondary; selected flair also rendered colored inline next to "(N chars left)".
+- CommentCard — colored pills in header; when `showPermalink` is true they wrap in a `/comments?primary=<key>` link for click-to-filter.
+- `/comments` — second filter row below sort buttons with counts; clicking toggles `?primary=` / `?secondary=` URL params; filters compose.
+- OG image (`api/og/[id]/+server.ts`) — colored pill badges using `ogHex`/`ogTextHex` literals (no SVGs — Satori SVG support is finicky; PNGs not embedded either).
+- Admin queue — pills shown inline with author/date so moderators see how the submitter tagged the message.
+
+## Sound system (`src/lib/sounds.svelte.ts`)
+
+Web Audio API click sound layer, mmm.page-style. Single decoded buffer per sound, fired via cheap `AudioBufferSourceNode` per click — zero latency, overlapping rapid clicks work fine.
+
+**Six named sounds** (files at `static/sounds/xp-<key>.mp3`; missing files silently no-op):
+
+| Key | When |
+|---|---|
+| `click` | Default — any clickable element |
+| `click2` | Decorative/fake buttons (XPWindow ✕ close, ⬜ maximize when no `onMaximize`) |
+| `error` | Form validation fail, vote fail, network errors |
+| `minimize` | XPWindow `_` minimize button |
+| `send` | Successful message submit |
+| `clear` | Composer Clear button |
+
+**Wiring conventions**:
+- `<ClickSound />` is mounted once in `+layout.svelte` and handles global pointerdown.
+- Use `data-click-sound="<key>"` on any element to override the default click. `data-click-sound="none"` opts out entirely (used on the taskbar mute toggle so it doesn't make a sound when muting).
+- `XPButton` forwards a `dataClickSound?: string` prop down to the rendered button/anchor's `data-click-sound` attribute.
+- Programmatic playback: `sounds.play('error')` from anywhere. The composer enhance callback uses `sounds.play('send')` on success and `sounds.play('error')` on fail. CommentCard's vote-fail also plays error.
+
+**Velocity-aware** (Ableton-pad feel):
+- On touch / Apple Pencil: real `PointerEvent.pressure` (0–1, non-flat) maps to volume range 0.12–0.57.
+- On mouse: pressure always reports 0.5 (no hardware velocity), so we humanize with random volume + ±8% pitch jitter.
+- Either way the default click is humanized so rapid clicks never sound mechanical.
+
+**Taskbar 🔊 toggle**: persists to localStorage key `xp-sounds`. The button itself has `data-click-sound="none"` so toggling is silent.
+
+## Environment
+
+- `VOTER_HASH_SALT` — secret salt for `voterHash(ip, ua)`. Stable across deploys (despite the old name `DAILY_HASH_SALT` suggesting rotation — there's no rotation logic). **If you ever change this value, every existing visitor's hash resets**: votes lose dedup history, stone identities change, rate-limit counts reset. Treat it as a permanent secret.
 
 ## Conventions / preferences
 
@@ -130,6 +202,8 @@ Migrations live in `supabase/migrations/`. **Applied manually via the Supabase W
 - **Title overrides:** The layout `<title>` is just a default. Child pages override and unmount their override on navigation — but they DON'T restore the parent title. Always set explicitly.
 - **A11y warnings on `<span onclick>`** — Svelte 5 flags this with two warnings. Convert to `<button type="button">` styled flat (`border-0 bg-transparent p-0`) to inherit keyboard support and silence both.
 - **Chrome DevTools probes** for `/.well-known/appspecific/com.chrome.devtools.json` on every dev session. Stub file in `static/` returns 200 with `{}`. Harmless either way; it's a local-dev-only noise filter.
+- **`load` data must be JSON-serializable** — `PrimaryFlair.icon` is a Svelte component (function), so server `load` can't return full flair objects. Return `PrimaryFlairKey[]` strings and rehydrate via `primaryByKey()` on the page. Same trap for any other type that smuggles a function reference.
+- **`CREATE OR REPLACE VIEW` + new columns in source table** = error 42P16 "cannot change name of view column". Drop and recreate instead — views hold no data, computed columns regenerate per query.
 
 ## Common commands
 

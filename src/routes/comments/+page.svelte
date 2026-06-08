@@ -3,6 +3,14 @@
 	import XPButton from '$lib/components/XPButton.svelte';
 	import CommentCard from '$lib/components/CommentCard.svelte';
 	import HitCounter from '$lib/components/HitCounter.svelte';
+	import FlairPill from '$lib/components/FlairPill.svelte';
+	import {
+		SECONDARY_FLAIRS,
+		primaryByKey,
+		secondaryByKey,
+		type PrimaryFlairKey,
+		type SecondaryFlairKey
+	} from '$lib/flairs';
 	import { SORT_LABELS, type SortKey } from '$lib/types';
 	import { goto } from '$app/navigation';
 	import { page as pageStore } from '$app/stores';
@@ -28,6 +36,20 @@
 		e.preventDefault();
 		goto(buildUrl({ q, page: 1 }));
 	}
+
+	function togglePrimary(key: PrimaryFlairKey) {
+		goto(buildUrl({ primary: data.primary === key ? '' : key, page: 1 }));
+	}
+
+	function toggleSecondary(key: SecondaryFlairKey) {
+		goto(buildUrl({ secondary: data.secondary === key ? '' : key, page: 1 }));
+	}
+
+	const activePrimaryFlair = $derived(primaryByKey(data.primary));
+	const activeSecondaryFlair = $derived(secondaryByKey(data.secondary));
+	const orderedPrimaryFlairs = $derived(
+		data.orderedPrimaryFlairKeys.map((k) => primaryByKey(k)).filter((f) => !!f)
+	);
 
 	const sortKeys: SortKey[] = ['hot', 'new', 'top', 'controversial'];
 
@@ -100,12 +122,38 @@
 		</form>
 	</div>
 
-	<div class="my-2 flex items-center gap-3">
+	<div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-[#808080] pb-2">
+		<span class="font-tahoma text-xs font-bold text-[#404040]">Filter:</span>
+		{#each orderedPrimaryFlairs as flair (flair.key)}
+			<FlairPill
+				{flair}
+				interactive
+				selected={data.primary === flair.key}
+				count={data.primaryCounts[flair.key] ?? 0}
+				onclick={() => togglePrimary(flair.key)}
+			/>
+		{/each}
+		<span class="font-tahoma text-xs text-[#808080]">·</span>
+		{#each SECONDARY_FLAIRS as flair (flair.key)}
+			<FlairPill
+				{flair}
+				interactive
+				selected={data.secondary === flair.key}
+				count={data.secondaryCounts[flair.key] ?? 0}
+				onclick={() => toggleSecondary(flair.key)}
+			/>
+		{/each}
+	</div>
+
+	<div class="my-2 flex flex-wrap items-center gap-3">
 		<HitCounter count={data.total} label="TOTAL" digits={5} />
 		<p class="font-tahoma text-xs text-[#404040]">
-			Sorted by <strong>{SORT_LABELS[data.sort]}</strong>{#if data.q}, filtered by <em
-					>"{data.q}"</em
-				>{/if}.
+			Sorted by <strong>{SORT_LABELS[data.sort]}</strong>{#if data.q}, searched <em>"{data.q}"</em
+				>{/if}{#if activePrimaryFlair || activeSecondaryFlair}, filtered by
+				{#if activePrimaryFlair}<strong>{activePrimaryFlair.label}</strong
+					>{/if}{#if activePrimaryFlair && activeSecondaryFlair}
+					·
+				{/if}{#if activeSecondaryFlair}<strong>{activeSecondaryFlair.label}</strong>{/if}{/if}.
 		</p>
 	</div>
 

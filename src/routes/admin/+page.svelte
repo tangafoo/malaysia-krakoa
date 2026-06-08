@@ -5,6 +5,8 @@
 	import { PUBLIC_SITE_URL } from '$env/static/public';
 	import XPWindow from '$lib/components/XPWindow.svelte';
 	import XPButton from '$lib/components/XPButton.svelte';
+	import FlairPill from '$lib/components/FlairPill.svelte';
+	import { primaryByKey, secondaryByKey } from '$lib/flairs';
 	import type { Comment } from '$lib/types';
 
 	let email = $state('');
@@ -125,9 +127,17 @@
 			<ul class="flex flex-col gap-2">
 				{#each pending as c (c.id)}
 					<li class="xp-bevel bg-white p-2">
-						<div class="font-tahoma flex items-center gap-2 text-xs">
+						<div class="font-tahoma flex flex-wrap items-center gap-2 text-xs">
 							<strong>{c.name?.trim() || 'Anonymous Fan'}</strong>
 							<span class="text-[#404040]">{new Date(c.created_at).toLocaleString()}</span>
+							{#if c.primary_flair}
+								{@const pf = primaryByKey(c.primary_flair)}
+								{#if pf}<FlairPill flair={pf} />{/if}
+							{/if}
+							{#if c.secondary_flair}
+								{@const sf = secondaryByKey(c.secondary_flair)}
+								{#if sf}<FlairPill flair={sf} />{/if}
+							{/if}
 						</div>
 						<p class="font-tahoma mt-1 text-sm whitespace-pre-wrap">{c.content}</p>
 						{#if c.moderation_flags}

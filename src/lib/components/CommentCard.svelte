@@ -1,7 +1,10 @@
 <script lang="ts">
 	import type { Comment } from '$lib/types';
 	import { formatCommentDate } from '$lib/date';
+	import { primaryByKey, secondaryByKey } from '$lib/flairs';
+	import { sounds } from '$lib/sounds.svelte';
 	import XPButton from './XPButton.svelte';
+	import FlairPill from './FlairPill.svelte';
 
 	let {
 		comment,
@@ -44,6 +47,7 @@
 				upvotes = optimisticUp;
 				downvotes = optimisticDown;
 				voted = null;
+				sounds.play('error');
 				return;
 			}
 			const data = (await res.json()) as { upvotes: number; downvotes: number };
@@ -55,11 +59,14 @@
 			downvotes = optimisticDown;
 			voted = null;
 			error = 'Network error';
+			sounds.play('error');
 		}
 	}
 
 	const displayName = $derived(comment.name?.trim() || 'Anonymous Fan');
 	const sentAt = $derived(formatCommentDate(comment.created_at));
+	const primaryFlair = $derived(primaryByKey(comment.primary_flair));
+	const secondaryFlair = $derived(secondaryByKey(comment.secondary_flair));
 </script>
 
 <article class="xp-bevel bg-white">
@@ -72,6 +79,32 @@
 		{/if}
 		<span class="text-xp-blue font-bold">{displayName}</span>
 		<span class="text-[#404060]">· {sentAt}</span>
+		{#if primaryFlair}
+			{#if showPermalink}
+				<a
+					href={`/comments?primary=${primaryFlair.key}`}
+					class="hover:opacity-80"
+					aria-label={`Filter by ${primaryFlair.label}`}
+				>
+					<FlairPill flair={primaryFlair} colored />
+				</a>
+			{:else}
+				<FlairPill flair={primaryFlair} colored />
+			{/if}
+		{/if}
+		{#if secondaryFlair}
+			{#if showPermalink}
+				<a
+					href={`/comments?secondary=${secondaryFlair.key}`}
+					class="hover:opacity-80"
+					aria-label={`Filter by ${secondaryFlair.label}`}
+				>
+					<FlairPill flair={secondaryFlair} colored />
+				</a>
+			{:else}
+				<FlairPill flair={secondaryFlair} colored />
+			{/if}
+		{/if}
 		<div class="flex-1"></div>
 		{#if showPermalink}
 			<a href={`/comment/${comment.id}`} class="text-xp-blue underline hover:text-[#0044b6]">link</a
