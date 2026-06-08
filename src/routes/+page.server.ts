@@ -2,7 +2,7 @@ import { fail, type Actions, type ServerLoad } from '@sveltejs/kit';
 import { getServerSupabase } from '$lib/server/supabase';
 import { getClientIp, voterHash } from '$lib/server/hash';
 import { moderate } from '$lib/server/moderation';
-import { getLatestMCU } from '$lib/server/tmdb';
+import { getMCUSpotlights } from '$lib/server/tmdb';
 import { quoteOfTheDay } from '$lib/feige-quote';
 import type { RankedComment } from '$lib/types';
 
@@ -14,10 +14,10 @@ export const load: ServerLoad = async ({ request, getClientAddress }) => {
 	const hash = await voterHash(ip, ua);
 	const today = new Date().toISOString().slice(0, 10);
 
-	const [topRes, totalRes, spotlight, refreshRes] = await Promise.all([
+	const [topRes, totalRes, spotlights, refreshRes] = await Promise.all([
 		supabase.from('ranked_comments').select('*').order('hot_score', { ascending: false }).limit(3),
 		supabase.from('comments').select('*', { count: 'exact', head: true }).eq('status', 'approved'),
-		getLatestMCU(),
+		getMCUSpotlights(),
 		supabase
 			.from('quote_refreshes')
 			.select('quote_text, quote_source')
@@ -26,15 +26,24 @@ export const load: ServerLoad = async ({ request, getClientAddress }) => {
 			.maybeSingle()
 	]);
 
-	let spotlightCounts: { hearts: number; broken_hearts: number } | null = null;
-	if (spotlight.tmdb_id) {
+	const spotlightKeys = spotlights.map((s) => (s.tmdb_id ? String(s.tmdb_id) : null));
+	const knownKeys = spotlightKeys.filter((k): k is string => k !== null);
+	const countsByKey = new Map<string, { hearts: number; broken_hearts: number }>();
+	if (knownKeys.length > 0) {
 		const { data } = await supabase
 			.from('spotlight_sentiment_counts')
 			.select('*')
-			.eq('spotlight_key', String(spotlight.tmdb_id))
-			.maybeSingle();
-		spotlightCounts = data ?? { hearts: 0, broken_hearts: 0 };
+			.in('spotlight_key', knownKeys);
+		for (const row of data ?? []) {
+			countsByKey.set(row.spotlight_key, {
+				hearts: row.hearts ?? 0,
+				broken_hearts: row.broken_hearts ?? 0
+			});
+		}
 	}
+	const spotlightCounts = spotlightKeys.map((key) =>
+		key ? (countsByKey.get(key) ?? { hearts: 0, broken_hearts: 0 }) : null
+	);
 
 	const quote = refreshRes.data
 		? { quote: refreshRes.data.quote_text, source: refreshRes.data.quote_source }
@@ -45,7 +54,7 @@ export const load: ServerLoad = async ({ request, getClientAddress }) => {
 		totalCount: totalRes.count ?? 0,
 		quote,
 		quoteRefreshedToday: !!refreshRes.data,
-		spotlight,
+		spotlights,
 		spotlightCounts
 	};
 };

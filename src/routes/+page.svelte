@@ -29,9 +29,22 @@
 	let content = $state('');
 	let name = $state('');
 	let spotlightExpanded = $state(false);
+	let spotlightIndex = $state(0);
 	let currentQuote = $state(data.quote);
 	let quoteRefreshed = $state(data.quoteRefreshedToday);
 	let refreshingQuote = $state(false);
+
+	const currentSpotlight = $derived(data.spotlights[spotlightIndex]);
+	const currentSpotlightCounts = $derived(data.spotlightCounts[spotlightIndex]);
+	const otherSpotlight = $derived(data.spotlights[(spotlightIndex + 1) % data.spotlights.length]);
+	const cycleLinkLabel = $derived(
+		otherSpotlight.status === 'upcoming' ? 'see upcoming release >>' : 'see latest release >'
+	);
+
+	function cycleSpotlight(delta: number) {
+		const n = data.spotlights.length;
+		spotlightIndex = (spotlightIndex + delta + n) % n;
+	}
 
 	async function refreshQuote() {
 		if (quoteRefreshed || refreshingQuote) return;
@@ -170,6 +183,25 @@
 	</XPWindow>
 {/snippet}
 
+<!-- {#snippet spotlightCycler()}
+	<button
+		type="button"
+		onclick={() => cycleSpotlight(-1)}
+		aria-label="Previous spotlight"
+		class="xp-bevel bg-xp-gray font-tahoma flex h-5 w-5 cursor-pointer items-center justify-center rounded-sm pb-0.5 text-xs font-bold text-black"
+	>
+		‹
+	</button>
+	<button
+		type="button"
+		onclick={() => cycleSpotlight(1)}
+		aria-label="Next spotlight"
+		class="xp-bevel bg-xp-gray font-tahoma flex h-5 w-5 cursor-pointer items-center justify-center rounded-sm pb-0.5 text-xs font-bold text-black"
+	>
+		›
+	</button>
+{/snippet} -->
+
 {#snippet spotlight()}
 	<XPWindow
 		title="MCU Spotlight"
@@ -177,56 +209,92 @@
 		maximized={spotlightExpanded}
 		onMaximize={() => (spotlightExpanded = !spotlightExpanded)}
 	>
-		{#if spotlightExpanded}
-			<div
-				in:aero={{ duration: 250, delay: 200 }}
-				out:aero={{ duration: 200 }}
-				class="flex flex-col gap-3"
-			>
-				{#if data.spotlight.poster_url}
-					<div class="xp-bevel-inset flex justify-center bg-black p-2">
-						<img
-							src={data.spotlight.poster_url}
-							alt={data.spotlight.title}
-							class="w-full max-w-xs"
-						/>
+		{#key spotlightIndex}
+			{@const dateLabel = currentSpotlight.status === 'upcoming' ? 'Releases' : 'Released'}
+			{#if spotlightExpanded}
+				<div
+					in:aero={{ duration: 250, delay: 200 }}
+					out:aero={{ duration: 200 }}
+					class="flex flex-col gap-3"
+				>
+					{#if currentSpotlight.poster_url}
+						<div class="xp-bevel-inset relative flex justify-center bg-black p-2">
+							<img
+								src={currentSpotlight.poster_url}
+								alt={currentSpotlight.title}
+								class="w-full max-w-lg"
+							/>
+							<button
+								type="button"
+								onclick={() => (spotlightExpanded = !spotlightExpanded)}
+								aria-label="Restore"
+								class="xp-bevel blackSupportButton"
+							>
+								⛶
+							</button>
+						</div>
+					{/if}
+					<div>
+						<h3 class="font-pixelify text-xl leading-tight">{currentSpotlight.title}</h3>
+						<p class="font-tahoma text-xs text-black">
+							{dateLabel}
+							{formatReleaseDate(currentSpotlight.release_date)}
+						</p>
+						<p class="font-tahoma mt-2 text-sm">{currentSpotlight.overview}</p>
 					</div>
-				{/if}
-				<div>
-					<h3 class="font-pixelify text-xl leading-tight">{data.spotlight.title}</h3>
-					<p class="font-tahoma text-xs text-[#404040]">
-						Released {formatReleaseDate(data.spotlight.release_date)}
-					</p>
-					<p class="font-tahoma mt-2 text-sm">{data.spotlight.overview}</p>
 				</div>
-			</div>
-		{:else}
-			<div in:aero={{ duration: 250, delay: 200 }} out:aero={{ duration: 200 }} class="flex gap-3">
-				{#if data.spotlight.poster_url}
-					<img
-						src={data.spotlight.poster_url}
-						alt={data.spotlight.title}
-						class="xp-bevel-inset h-32 w-auto bg-black"
+			{:else}
+				<div
+					in:aero={{ duration: 250, delay: 200 }}
+					out:aero={{ duration: 200 }}
+					class="flex gap-3"
+				>
+					{#if currentSpotlight.poster_url}
+						<div class="relative shrink-0">
+							<img
+								src={currentSpotlight.poster_url}
+								alt={currentSpotlight.title}
+								class="xp-bevel-inset h-48 w-auto bg-black"
+							/>
+							<button
+								type="button"
+								onclick={() => (spotlightExpanded = !spotlightExpanded)}
+								aria-label="Maximize"
+								class="xp-bevel blackSupportButton"
+							>
+								⛶
+							</button>
+						</div>
+					{/if}
+					<div class="flex-1">
+						<h3 class="font-pixelify text-lg leading-tight">{currentSpotlight.title}</h3>
+						<p class="font-tahoma text-xs text-[#404040]">
+							{dateLabel}
+							{formatReleaseDate(currentSpotlight.release_date)}
+						</p>
+						<p class="font-tahoma mt-1 line-clamp-5 text-sm">{currentSpotlight.overview}</p>
+					</div>
+				</div>
+			{/if}
+			<div class="mt-3 flex flex-col gap-2 border-t border-[#808080] pt-2">
+				{#if data.spotlights.length > 1}
+					<button
+						type="button"
+						onclick={() => cycleSpotlight(1)}
+						class="font-tahoma cursor-pointer self-start text-xs text-[#0058e9] underline hover:text-[#003a9e]"
+					>
+						{cycleLinkLabel}
+					</button>
+				{/if}
+				{#if currentSpotlight.tmdb_id}
+					<SpotlightVote
+						spotlightKey={String(currentSpotlight.tmdb_id)}
+						initialHearts={currentSpotlightCounts?.hearts ?? 0}
+						initialBrokenHearts={currentSpotlightCounts?.broken_hearts ?? 0}
 					/>
 				{/if}
-				<div class="flex-1">
-					<h3 class="font-pixelify text-lg leading-tight">{data.spotlight.title}</h3>
-					<p class="font-tahoma text-xs text-[#404040]">
-						Released {formatReleaseDate(data.spotlight.release_date)}
-					</p>
-					<p class="font-tahoma mt-1 line-clamp-5 text-sm">{data.spotlight.overview}</p>
-				</div>
 			</div>
-		{/if}
-		{#if data.spotlight.tmdb_id}
-			<div class="mt-3 border-t border-[#808080] pt-2">
-				<SpotlightVote
-					spotlightKey={String(data.spotlight.tmdb_id)}
-					initialHearts={data.spotlightCounts?.hearts ?? 0}
-					initialBrokenHearts={data.spotlightCounts?.broken_hearts ?? 0}
-				/>
-			</div>
-		{/if}
+		{/key}
 	</XPWindow>
 {/snippet}
 

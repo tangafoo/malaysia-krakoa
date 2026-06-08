@@ -73,6 +73,11 @@ body {
 	transform: translate(1px, 1px);
 }
 
+/* Image-overlay action button — small black square anchored to bottom-right of an image. Compose with .xp-bevel. */
+.blackSupportButton {
+	@apply absolute right-1.5 bottom-1.5 flex h-6 w-6 cursor-pointer items-center justify-center rounded-sm bg-black text-xs font-bold text-white shadow-md;
+}
+
 /* CRT scanline texture for hit counter */
 .crt-screen {
 	background: #000;
