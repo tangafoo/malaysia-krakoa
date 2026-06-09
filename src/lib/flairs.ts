@@ -22,7 +22,7 @@ export type PrimaryFlairKey =
 	| 'stone-time'
 	| 'stone-soul';
 
-export type SecondaryFlairKey = 'suggestion' | 'fanmail';
+export type SecondaryFlairKey = 'suggestion' | 'fanmail' | 'thoughts';
 
 export interface PrimaryFlair {
 	key: PrimaryFlairKey;
@@ -136,7 +136,8 @@ export const STONE_KEYS: PrimaryFlairKey[] = PRIMARY_FLAIRS.filter((f) => f.rare
 
 export const SECONDARY_FLAIRS: SecondaryFlair[] = [
 	{ key: 'suggestion', label: 'Suggestion', emoji: '💡', ogHex: '#0ea5e9', ogTextHex: '#ffffff' },
-	{ key: 'fanmail', label: 'Fanmail', emoji: '💌', ogHex: '#ec4899', ogTextHex: '#ffffff' }
+	{ key: 'fanmail', label: 'Fanmail', emoji: '💌', ogHex: '#ec4899', ogTextHex: '#ffffff' },
+	{ key: 'thoughts', label: 'Thoughts', emoji: '🧠', ogHex: '#7c3aed', ogTextHex: '#ffffff' }
 ];
 
 export const PRIMARY_KEYS: Set<string> = new Set(PRIMARY_FLAIRS.map((f) => f.key));

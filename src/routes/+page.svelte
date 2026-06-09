@@ -162,7 +162,9 @@
 
 			<div class="flex flex-col gap-1 text-sm">
 				<div class="flex flex-wrap items-center gap-1">
-					<span class="font-tahoma w-14 text-xs font-bold text-[#404040]">Flair:</span>
+					<span class="font-tahoma shrink-0 text-xs font-bold text-[#404040]"
+						>Flair <span class="font-normal text-[#808080]">(optional)</span>:</span
+					>
 					{#each composerPrimaryFlairs as flair (flair.key)}
 						<FlairPill
 							{flair}
@@ -173,7 +175,9 @@
 					{/each}
 				</div>
 				<div class="flex flex-wrap items-center gap-1">
-					<span class="font-tahoma w-14 text-xs font-bold text-[#404040]">Tone:</span>
+					<span class="font-tahoma shrink-0 text-xs font-bold text-[#404040]"
+						>Type <span class="font-normal text-[#808080]">(optional)</span>:</span
+					>
 					{#each SECONDARY_FLAIRS as flair (flair.key)}
 						<FlairPill
 							{flair}
@@ -400,13 +404,13 @@
 	Desktop (lg+) reads quote → spotlight → worldwideFanbase top-to-bottom in the
 	right aside.
 -->
-<section class="flex flex-col gap-4 sm:gap-6 lg:grid lg:grid-cols-3 lg:gap-4">
-	<div class="flex min-w-0 flex-col gap-4 sm:gap-6 lg:col-span-2 lg:gap-4">
+<section class="flex flex-col gap-6 sm:gap-7 lg:grid lg:grid-cols-3 lg:gap-6">
+	<div class="flex min-w-0 flex-col gap-6 sm:gap-7 lg:col-span-2 lg:gap-6">
 		{@render composer()}
 		{@render supremeIntelligence()}
 		{@render top3()}
 	</div>
-	<aside class="flex min-w-0 flex-col gap-4 sm:gap-6 lg:gap-4">
+	<aside class="flex min-w-0 flex-col gap-6 sm:gap-7 lg:gap-6">
 		<div class="order-2 lg:order-1">{@render quote()}</div>
 		<div class="order-1 lg:order-2">{@render spotlight()}</div>
 		<div class="order-3">{@render worldwideFanbase()}</div>
