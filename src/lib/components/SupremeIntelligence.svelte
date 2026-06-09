@@ -18,7 +18,7 @@
 	let active = $state<Tab>('overall');
 
 	const tabs: { key: Tab; label: string; icon: string }[] = [
-		{ key: 'overall', label: 'ALL', icon: '🌌' },
+		{ key: 'overall', label: 'ALL', icon: '✨' },
 		{ key: 'top', label: 'TOP', icon: '🔥' },
 		{ key: 'controversial', label: 'CONTROVERSIAL', icon: '🃏' }
 	];
@@ -58,7 +58,7 @@
 </script>
 
 <XPWindow
-	title="Kree Supreme Intelligence"
+	title="Kree Supreme Intelligence - Supremor"
 	icon="🧠"
 	titlebarVariant="green"
 	bodyClass="bg-neutral-350!"
@@ -96,8 +96,8 @@
 				</button>
 				{#if helpOpen}
 					<div role="tooltip" class="kree-help-popup">
-						AI synthesis of every fan message sent to Kevin Feige. The Kree oracle reads the room so
-						you don't have to. Can you change the sentiment?
+						AI synthesis of every piece of fanmail sent to Kevin Feige. The Kree oracle reads the
+						room so you don't have to. Can you change the sentiment?
 					</div>
 				{/if}
 			</div>
@@ -116,7 +116,7 @@
 				/>
 
 				<div class="mb-2 flex items-center justify-between text-xs uppercase opacity-80">
-					<span>Analyzed: {summary?.comments_analyzed} comments</span>
+					<span>Analyzed: {summary?.comments_analyzed}</span>
 					<span>Last cycle: {generatedLabel}</span>
 				</div>
 
@@ -134,7 +134,7 @@
 					</div>
 				{:else}
 					<p class="text-xl leading-snug tracking-wide opacity-90">
-						The Supreme Intelligence is calibrating. Send messages to feed the collective.
+						The Supreme Intelligence is calibrating. Send fanmail to feed the collective.
 					</p>
 					<div class="mt-4 text-[10px] uppercase opacity-70">Awaiting first transmission…</div>
 				{/if}

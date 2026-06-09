@@ -80,6 +80,17 @@ body {
 		#0e3a32 100%
 	);
 }
+.xp-titlebar-black {
+	background: linear-gradient(
+		180deg,
+		#0a0a0a 0%,
+		#3a3a3a 8%,
+		#1a1a1a 40%,
+		#0d0d0d 88%,
+		#3a3a3a 93%,
+		#0a0a0a 100%
+	);
+}
 
 /* "Active button" press effect */
 .xp-button:active:not(:disabled) {

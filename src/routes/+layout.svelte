@@ -36,13 +36,13 @@
 	<meta property="og:title" content="Marvel Fans for Feige" />
 	<meta
 		property="og:description"
-		content="The singular message Marvel fans want to send to Kevin Feige."
+		content="The singular fanmail Marvel fans want to send to Kevin Feige."
 	/>
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content="Marvel Fans for Feige" />
 	<meta
 		name="twitter:description"
-		content="The singular message Marvel fans want to send to Kevin Feige."
+		content="The singular fanmail Marvel fans want to send to Kevin Feige."
 	/>
 </svelte:head>
 
@@ -54,14 +54,14 @@
 
 	<div class="mx-auto mt-3 max-w-6xl px-3">
 		<div class="xp-bevel bg-xp-gray flex flex-wrap items-stretch gap-2 p-2 shadow-lg">
-			<HitCounter count={data.totalCount} label="MESSAGES" digits={6} />
+			<HitCounter count={data.totalCount} label="FANMAIL" digits={6} />
 			<PresenceCounter initialPeak={data.peakOnline} />
 			<div class="min-w-0 flex-1">
 				<Marquee>
 					<span>
 						★ NEW! ★ {data.totalCount} fans have written to Kevin Feige ★ marvelfansforfeige.com ★ Welcome
 						new users from Reddit, Twitter, and everywhere else! ★ What do you ❤️ about MARVEL ? ★ What
-						do you 💀 about MARVEL ? ★ Write your message now! ★
+						do you 💀 about MARVEL ? ★ Write your fanmail now! ★
 					</span>
 				</Marquee>
 			</div>

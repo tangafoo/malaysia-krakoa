@@ -2,14 +2,7 @@ import { browser } from '$app/environment';
 
 const STORAGE_KEY = 'xp-sounds';
 
-export type SoundKey =
-	| 'click'
-	| 'click2'
-	| 'error'
-	| 'minimize'
-	| 'send'
-	| 'clear'
-	| 'repulsor';
+export type SoundKey = 'click' | 'click2' | 'error' | 'minimize' | 'send' | 'clear' | 'repulsor';
 
 const SOURCES: Record<SoundKey, string> = {
 	click: '/sounds/xp-click.mp3',

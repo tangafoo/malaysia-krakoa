@@ -19,7 +19,7 @@
 		actions?: Snippet;
 		titleClass?: string;
 		bodyClass?: string;
-		titlebarVariant?: 'blue' | 'green';
+		titlebarVariant?: 'blue' | 'green' | 'black';
 		onMaximize?: () => void;
 		maximized?: boolean;
 	} = $props();

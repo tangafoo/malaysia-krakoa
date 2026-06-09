@@ -87,16 +87,16 @@
 </script>
 
 <svelte:head>
-	<title>All messages to Kevin Feige · marvelfansforfeige.com</title>
+	<title>All fanmail to Kevin Feige · marvelfansforfeige.com</title>
 	<meta
 		name="description"
-		content="Browse every message Marvel fans have sent to Kevin Feige. Sort by hot, new, top, or controversial. Upvote the takes you agree with."
+		content="Browse every piece of fanmail Marvel fans have sent to Kevin Feige. Sort by hot, new, top, or controversial. Upvote the takes you agree with."
 	/>
-	<meta property="og:title" content="All messages to Kevin Feige" />
+	<meta property="og:title" content="All fanmail to Kevin Feige" />
 	<meta property="og:description" content="Every Marvel fan letter, sortable and upvotable." />
 </svelte:head>
 
-<XPWindow title="All Messages to Kevin — Browse &amp; Vote" icon="📂">
+<XPWindow title="All Fanmail to Kevin — Browse &amp; Vote" icon="📂">
 	<div class="flex flex-wrap items-center gap-2 border-b border-[#808080] pb-2">
 		{#each sortKeys as s (s)}
 			{@const style = filterStyle[s]}
@@ -116,7 +116,7 @@
 		<form onsubmit={search} class="ml-auto flex items-center gap-1">
 			<input
 				bind:value={q}
-				placeholder="Search messages…"
+				placeholder="Search fanmail…"
 				class="xp-bevel-inset font-tahoma bg-white px-2 py-1 text-sm"
 			/>
 			<XPButton type="submit">Search</XPButton>
@@ -160,7 +160,7 @@
 
 	{#if data.comments.length === 0}
 		<p class="font-tahoma py-6 text-center text-sm text-[#404040]">
-			No messages match.
+			No fanmail matches.
 			{#if data.q}
 				<a href="/comments" class="text-xp-blue underline">Clear search</a>
 			{/if}

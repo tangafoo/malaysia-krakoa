@@ -6,6 +6,7 @@
 	import SpotlightVote from '$lib/components/SpotlightVote.svelte';
 	import KevinTooltip from '$lib/components/KevinTooltip.svelte';
 	import SupremeIntelligence from '$lib/components/SupremeIntelligence.svelte';
+	import CountryCounter from '$lib/components/CountryCounter.svelte';
 	import FlairPill from '$lib/components/FlairPill.svelte';
 	import {
 		SECONDARY_FLAIRS,
@@ -135,7 +136,7 @@
 
 			<label class="font-tahoma flex flex-col gap-1 text-sm">
 				<span class="flex flex-wrap items-center gap-x-1 gap-y-1 font-bold">
-					<span>Message for <KevinTooltip>Kevin Feige</KevinTooltip></span>
+					<span>Fanmail for <KevinTooltip>Kevin Feige</KevinTooltip></span>
 					<span class="font-normal text-[#404040]">({remaining} chars left)</span>
 					{#if selectedPrimaryFlair}
 						<FlairPill flair={selectedPrimaryFlair} colored />
@@ -224,10 +225,10 @@
 {/snippet}
 
 {#snippet top3()}
-	<XPWindow title="Top 3 Messages for K.E.V.I.N" icon="🔥">
+	<XPWindow title="Top 3 Fanmail for K.E.V.I.N" icon="🔥">
 		{#if data.top3.length === 0}
 			<p class="font-tahoma py-4 text-center text-sm text-[#404040]">
-				No messages yet. Be the first to send one!
+				No fanmail yet. Be the first to send some!
 			</p>
 		{:else}
 			<div class="flex flex-col gap-3">
@@ -236,7 +237,7 @@
 				{/each}
 			</div>
 			<div class="mt-3 text-right">
-				<XPButton href="/comments" variant="primary">See all messages →</XPButton>
+				<XPButton href="/comments" variant="primary">See all fanmail →</XPButton>
 			</div>
 		{/if}
 	</XPWindow>
@@ -271,6 +272,10 @@
 
 {#snippet supremeIntelligence()}
 	<SupremeIntelligence summary={data.summary} />
+{/snippet}
+
+{#snippet worldwideFanbase()}
+	<CountryCounter visitorCountry={data.visitorCountry} topCountries={data.topCountries} />
 {/snippet}
 
 <!-- {#snippet spotlightCycler()}
@@ -388,24 +393,22 @@
 	</XPWindow>
 {/snippet}
 
-<!-- Desktop layout: 2-col grid, composer/S.I./top3 left, quote/spotlight stacked right -->
-<section class="hidden gap-4 lg:grid lg:grid-cols-3">
-	<div class="flex flex-col gap-4 lg:col-span-2">
+<!--
+	Single responsive layout. Mobile (<lg) flows the main column then the aside;
+	`order-*` flips quote/spotlight on mobile so the order reads
+	composer → S.I. → top3 → spotlight → quote → worldwideFanbase.
+	Desktop (lg+) reads quote → spotlight → worldwideFanbase top-to-bottom in the
+	right aside.
+-->
+<section class="flex flex-col gap-4 sm:gap-6 lg:grid lg:grid-cols-3 lg:gap-4">
+	<div class="flex min-w-0 flex-col gap-4 sm:gap-6 lg:col-span-2 lg:gap-4">
 		{@render composer()}
 		{@render supremeIntelligence()}
 		{@render top3()}
 	</div>
-	<aside class="flex flex-col gap-4">
-		{@render quote()}
-		{@render spotlight()}
+	<aside class="flex min-w-0 flex-col gap-4 sm:gap-6 lg:gap-4">
+		<div class="order-2 lg:order-1">{@render quote()}</div>
+		<div class="order-1 lg:order-2">{@render spotlight()}</div>
+		<div class="order-3">{@render worldwideFanbase()}</div>
 	</aside>
-</section>
-
-<!-- Mobile layout: composer → S.I. → spotlight → top3 → quote -->
-<section class="flex flex-col gap-6 lg:hidden">
-	{@render composer()}
-	{@render supremeIntelligence()}
-	{@render spotlight()}
-	{@render top3()}
-	{@render quote()}
 </section>

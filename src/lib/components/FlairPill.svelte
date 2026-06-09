@@ -56,7 +56,7 @@
 			? isPrimary
 				? `${(flair as PrimaryFlair).color} ring-1 ring-black/30`
 				: 'bg-xp-blue border-xp-blue text-white'
-			: 'xp-bevel bg-neutral-350 border-transparent hover:bg-white'}"
+			: 'xp-bevel border-transparent bg-neutral-300 hover:bg-white'}"
 	>
 		{@render body('h-4 w-4')}
 	</button>

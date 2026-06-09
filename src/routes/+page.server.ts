@@ -4,6 +4,7 @@ import { getClientIp, voterHash } from '$lib/server/hash';
 import { moderate } from '$lib/server/moderation';
 import { getMCUSpotlights } from '$lib/server/tmdb';
 import { getLatestSummary } from '$lib/server/summarize';
+import { bustApprovedCountCache } from '$lib/server/fanmail-count';
 import { quoteOfTheDay } from '$lib/feige-quote';
 import {
 	basePrimaryFlairsByPopularity,
@@ -22,28 +23,41 @@ export const load: ServerLoad = async ({ request, getClientAddress }) => {
 	const hash = await voterHash(ip, ua);
 	const today = new Date().toISOString().slice(0, 10);
 
-	const [topRes, totalRes, spotlights, refreshRes, flairUsageRes, summary] = await Promise.all([
-		supabase.from('ranked_comments').select('*').order('hot_score', { ascending: false }).limit(3),
-		supabase.from('comments').select('*', { count: 'exact', head: true }).eq('status', 'approved'),
-		getMCUSpotlights(),
-		supabase
-			.from('quote_refreshes')
-			.select('quote_text, quote_source')
-			.eq('submitter_hash', hash)
-			.eq('refresh_date', today)
-			.maybeSingle(),
-		supabase
-			.from('comments')
-			.select('primary_flair')
-			.eq('status', 'approved')
-			.not('primary_flair', 'is', null),
-		getLatestSummary()
-	]);
+	const [topRes, spotlights, refreshRes, flairCountsRes, summary, visitorRes, topCountriesRes] =
+		await Promise.all([
+			supabase
+				.from('ranked_comments')
+				.select('*')
+				.order('hot_score', { ascending: false })
+				.limit(3),
+			getMCUSpotlights(),
+			supabase
+				.from('quote_refreshes')
+				.select('quote_text, quote_source')
+				.eq('submitter_hash', hash)
+				.eq('refresh_date', today)
+				.maybeSingle(),
+			supabase.from('primary_flair_counts').select('primary_flair, comment_count'),
+			getLatestSummary(),
+			supabase
+				.from('visitor_countries')
+				.select('country_code, is_override')
+				.eq('submitter_hash', hash)
+				.maybeSingle(),
+			supabase
+				.from('visitor_country_counts')
+				.select('country_code, visitor_count')
+				.order('visitor_count', { ascending: false })
+				.limit(5)
+		]);
 
 	const primaryCounts: Record<string, number> = {};
-	for (const row of (flairUsageRes.data ?? []) as { primary_flair: string | null }[]) {
+	for (const row of (flairCountsRes.data ?? []) as {
+		primary_flair: string | null;
+		comment_count: number;
+	}[]) {
 		if (row.primary_flair) {
-			primaryCounts[row.primary_flair] = (primaryCounts[row.primary_flair] ?? 0) + 1;
+			primaryCounts[row.primary_flair] = row.comment_count;
 		}
 	}
 
@@ -80,13 +94,15 @@ export const load: ServerLoad = async ({ request, getClientAddress }) => {
 
 	return {
 		top3: (topRes.data ?? []) as RankedComment[],
-		totalCount: totalRes.count ?? 0,
 		quote,
 		quoteRefreshedToday: !!refreshRes.data,
 		spotlights,
 		spotlightCounts,
 		composerPrimaryFlairKeys,
-		summary
+		summary,
+		visitorCountry: (visitorRes.data?.country_code as string | undefined) ?? null,
+		topCountries:
+			(topCountriesRes.data as { country_code: string; visitor_count: number }[] | null) ?? []
 	};
 };
 
@@ -101,7 +117,7 @@ export const actions: Actions = {
 		const secondary_flair = SECONDARY_KEYS.has(secondaryRaw) ? secondaryRaw : null;
 
 		if (content.length < 1 || content.length > 500) {
-			return fail(400, { name, content, error: 'Message must be 1–500 characters.' });
+			return fail(400, { name, content, error: 'Fanmail must be 1–500 characters.' });
 		}
 
 		const ip = getClientIp(request.headers) || getClientAddress();
@@ -142,15 +158,22 @@ export const actions: Actions = {
 
 		if (error) {
 			console.error('insert comment failed', error);
-			return fail(500, { name, content, error: 'Could not save your message. Try again.' });
+			return fail(500, { name, content, error: 'Could not save your fanmail. Try again.' });
+		}
+
+		// New approved row → invalidate the layout's cached count so the FANMAIL
+		// marquee picks it up on the next nav instead of waiting up to 60s.
+		// Pending rows don't count yet — they'll get counted when admin approves.
+		if (status === 'approved') {
+			bustApprovedCountCache();
 		}
 
 		return {
 			success: true,
 			pending: moderation.flagged,
 			message: moderation.flagged
-				? "Your message is in the queue. We'll review it shortly!"
-				: 'Your message is live ✨'
+				? "Your fanmail is in the queue. We'll review it shortly!"
+				: 'Your fanmail is live ✨'
 		};
 	}
 };

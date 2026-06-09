@@ -17,7 +17,7 @@
 
 	const navLinks = [
 		{ href: '/', label: 'Home', icon: '🏠' },
-		{ href: '/comments', label: 'All Messages', icon: '💬' },
+		{ href: '/comments', label: 'All Fanmail', icon: '💬' },
 		{ href: '/about', label: 'About', icon: '📖' }
 	];
 </script>

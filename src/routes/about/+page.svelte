@@ -35,10 +35,10 @@
 				</p>
 				<p>
 					marvelfansforfeige.com is a small corner of the web where fans everywhere can leave short
-					messages to the OG creative director of Marvel.
+					fanmail to the OG creative director of Marvel.
 				</p>
 				<p>
-					Click <a href="/comments" class="text-xp-blue underline">All Messages</a> to read ALL comments,
+					Click <a href="/comments" class="text-xp-blue underline">All Fanmail</a> to read everything,
 					and upvote the takes you agree with.
 				</p>
 				<hr />
@@ -47,7 +47,7 @@
 						Be thoughtful - hateful & off-topic speech will get picked up by AI moderation
 						(hopefully).
 					</li>
-					<li>No accounts. Just names (optional) and messages.</li>
+					<li>No accounts. Just names (optional) and fanmail.</li>
 					<li>One vote per device.</li>
 				</ul>
 
