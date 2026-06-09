@@ -98,7 +98,7 @@
 </script>
 
 <div
-	class="pointer-events-none fixed inset-0 z-0 isolate transform-gpu overflow-hidden bg-[#050510]"
+	class="pointer-events-none fixed inset-0 isolate z-0 transform-gpu overflow-hidden bg-[#050510]"
 	aria-hidden="true"
 >
 	{#each stones as s (s.stone)}

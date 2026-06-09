@@ -5,6 +5,7 @@
 	import CommentCard from '$lib/components/CommentCard.svelte';
 	import SpotlightVote from '$lib/components/SpotlightVote.svelte';
 	import KevinTooltip from '$lib/components/KevinTooltip.svelte';
+	import SupremeIntelligence from '$lib/components/SupremeIntelligence.svelte';
 	import FlairPill from '$lib/components/FlairPill.svelte';
 	import {
 		SECONDARY_FLAIRS,
@@ -97,7 +98,7 @@
 </svelte:head>
 
 {#snippet composer()}
-	<XPWindow title="Compose Message for Kevin.exe" icon="✉️">
+	<XPWindow title="Write Mail" icon="💌">
 		<form
 			method="POST"
 			action="?/submit"
@@ -235,7 +236,7 @@
 				{/each}
 			</div>
 			<div class="mt-3 text-right">
-				<XPButton href="/comments" variant="default">See all messages →</XPButton>
+				<XPButton href="/comments" variant="primary">See all messages →</XPButton>
 			</div>
 		{/if}
 	</XPWindow>
@@ -247,12 +248,24 @@
 			"{currentQuote.quote}"
 		</blockquote>
 		<p class="font-coral-pixels mt-2 text-right text-sm font-bold">— {currentQuote.source}</p>
-		<div class="mt-3 text-right">
+		<div class="mt-3 flex items-center justify-between gap-2">
+			<a
+				href="https://en.wikipedia.org/wiki/Kevin_Feige"
+				target="_blank"
+				rel="noreferrer"
+				class="font-tahoma text-xs text-[#0058e9] underline hover:text-[#003a9e]"
+			>
+				Find out more about Kevin Feige →
+			</a>
 			<XPButton onclick={refreshQuote} disabled={quoteRefreshed || refreshingQuote}>
 				{quoteRefreshed ? '✓ Refreshed today' : refreshingQuote ? 'Refreshing…' : '🔄 New quote'}
 			</XPButton>
 		</div>
 	</XPWindow>
+{/snippet}
+
+{#snippet supremeIntelligence()}
+	<SupremeIntelligence summary={data.summary} />
 {/snippet}
 
 <!-- {#snippet spotlightCycler()}
@@ -370,10 +383,11 @@
 	</XPWindow>
 {/snippet}
 
-<!-- Desktop layout: 2-col grid, composer/top3 left, quote/spotlight stacked right -->
+<!-- Desktop layout: 2-col grid, composer/S.I./top3 left, quote/spotlight stacked right -->
 <section class="hidden gap-4 lg:grid lg:grid-cols-3">
 	<div class="flex flex-col gap-4 lg:col-span-2">
 		{@render composer()}
+		{@render supremeIntelligence()}
 		{@render top3()}
 	</div>
 	<aside class="flex flex-col gap-4">
@@ -382,9 +396,10 @@
 	</aside>
 </section>
 
-<!-- Mobile layout: single column, composer → spotlight → top 5 → quote -->
+<!-- Mobile layout: composer → S.I. → spotlight → top3 → quote -->
 <section class="flex flex-col gap-6 lg:hidden">
 	{@render composer()}
+	{@render supremeIntelligence()}
 	{@render spotlight()}
 	{@render top3()}
 	{@render quote()}

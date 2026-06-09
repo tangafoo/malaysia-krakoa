@@ -4,6 +4,7 @@
 	import CommentCard from '$lib/components/CommentCard.svelte';
 	import HitCounter from '$lib/components/HitCounter.svelte';
 	import FlairPill from '$lib/components/FlairPill.svelte';
+	import SupremeIntelligence from '$lib/components/SupremeIntelligence.svelte';
 	import {
 		SECONDARY_FLAIRS,
 		primaryByKey,
@@ -94,6 +95,10 @@
 	<meta property="og:title" content="All messages to Kevin Feige" />
 	<meta property="og:description" content="Every Marvel fan letter, sortable and upvotable." />
 </svelte:head>
+
+<div class="mb-4">
+	<SupremeIntelligence summary={data.summary} />
+</div>
 
 <XPWindow title="All Messages to Kevin — Browse &amp; Vote" icon="📂">
 	<div class="flex flex-wrap items-center gap-2 border-b border-[#808080] pb-2">

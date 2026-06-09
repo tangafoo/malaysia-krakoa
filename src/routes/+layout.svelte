@@ -59,8 +59,9 @@
 			<div class="min-w-0 flex-1">
 				<Marquee>
 					<span>
-						★ NEW! ★ {data.totalCount} fans have written to Kevin Feige ★ marvelfansforfeige.com ★ Thunderbolts*
-						was the best ★ Keep the MCU dream alive ★
+						★ NEW! ★ {data.totalCount} fans have written to Kevin Feige ★ marvelfansforfeige.com ★ Welcome
+						new users from Reddit, Twitter, and everywhere else! ★ What do you ❤️ about MARVEL ? ★ What
+						do you 💀 about MARVEL ? ★ Write your message now! ★
 					</span>
 				</Marquee>
 			</div>

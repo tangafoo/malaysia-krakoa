@@ -9,6 +9,7 @@
 		actions,
 		titleClass = '',
 		bodyClass = '',
+		titlebarVariant = 'blue',
 		onMaximize,
 		maximized = false
 	}: {
@@ -18,6 +19,7 @@
 		actions?: Snippet;
 		titleClass?: string;
 		bodyClass?: string;
+		titlebarVariant?: 'blue' | 'green';
 		onMaximize?: () => void;
 		maximized?: boolean;
 	} = $props();
@@ -26,7 +28,9 @@
 </script>
 
 <div class="xp-bevel bg-xp-gray flex flex-col overflow-hidden rounded-lg shadow-lg">
-	<div class="xp-titlebar flex items-center gap-2 px-1.5 py-1 {titleClass}">
+	<div
+		class="xp-titlebar xp-titlebar-{titlebarVariant} flex items-center gap-2 px-1.5 py-1 {titleClass}"
+	>
 		{#if icon}
 			<span aria-hidden="true" class="text-base leading-none">{icon}</span>
 		{/if}

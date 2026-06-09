@@ -83,7 +83,8 @@ export async function getMCUSpotlights(): Promise<MCUSpotlight[]> {
 		]);
 		// Sanity check: TMDB occasionally returns junk rows whose actual
 		// release_date doesn't match the filter. Drop anything mismatched.
-		const validLatest = latest && latest.release_date && latest.release_date <= today ? latest : null;
+		const validLatest =
+			latest && latest.release_date && latest.release_date <= today ? latest : null;
 		const validUpcoming =
 			upcoming && upcoming.release_date && upcoming.release_date >= today ? upcoming : null;
 		return [

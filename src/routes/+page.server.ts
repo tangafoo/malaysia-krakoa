@@ -3,6 +3,7 @@ import { getServerSupabase } from '$lib/server/supabase';
 import { getClientIp, voterHash } from '$lib/server/hash';
 import { moderate } from '$lib/server/moderation';
 import { getMCUSpotlights } from '$lib/server/tmdb';
+import { getLatestSummary } from '$lib/server/summarize';
 import { quoteOfTheDay } from '$lib/feige-quote';
 import {
 	basePrimaryFlairsByPopularity,
@@ -21,7 +22,7 @@ export const load: ServerLoad = async ({ request, getClientAddress }) => {
 	const hash = await voterHash(ip, ua);
 	const today = new Date().toISOString().slice(0, 10);
 
-	const [topRes, totalRes, spotlights, refreshRes, flairUsageRes] = await Promise.all([
+	const [topRes, totalRes, spotlights, refreshRes, flairUsageRes, summary] = await Promise.all([
 		supabase.from('ranked_comments').select('*').order('hot_score', { ascending: false }).limit(3),
 		supabase.from('comments').select('*', { count: 'exact', head: true }).eq('status', 'approved'),
 		getMCUSpotlights(),
@@ -35,7 +36,8 @@ export const load: ServerLoad = async ({ request, getClientAddress }) => {
 			.from('comments')
 			.select('primary_flair')
 			.eq('status', 'approved')
-			.not('primary_flair', 'is', null)
+			.not('primary_flair', 'is', null),
+		getLatestSummary()
 	]);
 
 	const primaryCounts: Record<string, number> = {};
@@ -83,7 +85,8 @@ export const load: ServerLoad = async ({ request, getClientAddress }) => {
 		quoteRefreshedToday: !!refreshRes.data,
 		spotlights,
 		spotlightCounts,
-		composerPrimaryFlairKeys
+		composerPrimaryFlairKeys,
+		summary
 	};
 };
 

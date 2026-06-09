@@ -26,7 +26,12 @@
 					I'm a Marvel fan. After watching <em>Thunderbolts*</em> and seeing such a mid reaction
 					(even tho it's such a great movie!!) - I felt that <KevinTooltip
 						><strong>Kevin Feige</strong></KevinTooltip
-					> might be a bit sad with all that "Marvel fatigue" talk.
+					> (<a
+						href="https://en.wikipedia.org/wiki/Kevin_Feige"
+						target="_blank"
+						rel="noreferrer"
+						class="text-xp-blue underline">wiki</a
+					>) might be a bit sad with all that "Marvel fatigue" talk.
 				</p>
 				<p>
 					marvelfansforfeige.com is a small corner of the web where fans everywhere can leave short

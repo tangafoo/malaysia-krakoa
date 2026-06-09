@@ -66,7 +66,7 @@
 			? 'flair-shimmer'
 			: ''} {colored
 			? isPrimary
-				? `${(flair as PrimaryFlair).color} ring-1 ring-black/30 text-black`
+				? `${(flair as PrimaryFlair).color} text-black ring-1 ring-black/30`
 				: 'bg-xp-blue border-xp-blue text-white'
 			: 'xp-bevel-inset border-transparent bg-white text-black'}"
 	>

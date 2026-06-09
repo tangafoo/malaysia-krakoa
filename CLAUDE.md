@@ -18,7 +18,7 @@ Live on Cloudflare Pages. Domain: marvelfansforfeige.com.
 - **Supabase** for data (Postgres + RLS). Server-side via `@supabase/supabase-js` using the service role.
 - **PostHog** for analytics (initialized client-side in `+layout.svelte`).
 - **TMDB API** for the MCU Spotlight panel (`src/lib/server/tmdb.ts`).
-- **OpenAI moderation** for comment screening (`src/lib/server/moderation.ts`).
+- **OpenAI moderation** for comment screening (`src/lib/server/moderation.ts`) **and daily Supreme Intelligence summaries** (`src/lib/server/summarize.ts`, model `gpt-4o-mini`, JSON-mode chat completions).
 - **GSAP** for the backdrop blob animation. Loaded via dynamic import (`await import('gsap')`) so it's never SSR-evaluated.
 
 **daisyUI was removed** — the project doesn't use any daisyUI component classes; the XP/Vista look is all bespoke CSS in `src/app.css` plus per-component Tailwind. Don't reintroduce daisyUI.
@@ -55,6 +55,10 @@ src/
       hash.ts                   getClientIp() + voterHash(ip, ua) — used for rate limiting
                                 AND as the deterministic input for stone identity.
       moderation.ts             OpenAI moderation wrapper.
+      summarize.ts              generateSummaries() → calls OpenAI chat completions
+                                (gpt-4o-mini, JSON mode) to produce top/controversial/overall
+                                digests of approved comments. getLatestSummary() → reads the
+                                latest row from comment_summaries for SSR.
       tmdb.ts                   getLatestMCU() — Spotlight data.
       stone-roll.ts             assignedStone(hash) → permanent 1-of-6 stone per visitor.
                                 rollDailyStone(hash, dateUtc) → that stone or null (10% gate).
@@ -73,6 +77,9 @@ src/
       vote/                     POST: upvote/downvote a comment.
       spotlight-vote/           POST: heart / broken-heart the MCU Spotlight.
       quote-refresh/            POST: refresh quote-of-the-day (once per user per day).
+      cron/refresh-summaries/   POST: rebuild Supreme Intelligence summaries; gated by
+                                `authorization: Bearer $CRON_SECRET`. Appends one
+                                comment_summaries row per call.
       og/                       Dynamic OG image generator (workers-og).
 supabase/migrations/            Numbered SQL migrations. Apply with `supabase db push`.
 static/                         favicon.svg, favicon.png, robots.txt,
@@ -99,6 +106,7 @@ All in `src/lib/components/`:
 - **FlairPill** — renders a primary or secondary flair. Three modes: static (default — xp-bevel-inset chrome on white), interactive (button with selected/unselected XP states, used in composer + `/comments` filter), and `colored` (static but with the flair's brand color — used everywhere visible flairs render: inline composer header pill, CommentCard, etc). Accepts `count?` to append `(N)`. Auto-renders the ✨ sparkle prefix/suffix + flair-shimmer CSS for rare stones.
 - **ClickSound** — invisible singleton component mounted once in `+layout.svelte`. Attaches a document-level `pointerdown` listener that fires sounds via Web Audio API. Skips body/text; matches `button, a, [role=button], input[type=...], summary, label, [data-click-sound]`. Reads `data-click-sound="<key>"` on the closest interactive element for sound overrides; `data-click-sound="none"` opts out entirely.
 - **StoneGreeting** — first-visit modal greeting the visitor with their fated Infinity Stone identity. Dismissal persisted in localStorage key `mff-stone-greeted`. Reads `data.assignedStoneKey` from layout context.
+- **SupremeIntelligence** — XPWindow wrapping a Kree-hologram CRT screen (`.kree-screen` in `app.css`). Three tabs — TOP TAKES / DISSENT / THE COLLECTIVE — render the corresponding fields of the latest `comment_summaries` row. Renders a "calibrating…" empty state if no row yet. Used on both `/` and `/comments`. Visuals: dark teal radial bg, phosphor-green VT323 text, vertical scan sweep, subtle flicker. Designed after Captain Marvel's Supreme Intelligence.
 
 ## Database schema (Supabase)
 
@@ -110,6 +118,7 @@ Migrations live in `supabase/migrations/`. **Applied manually via the Supabase W
 - **admin_emails** — allowlist for the moderation UI.
 - **spotlight_votes** + **spotlight_sentiment_counts** (view) — hearts/broken-hearts per TMDB id.
 - **quote_refreshes** — submitter_hash + refresh_date (PK) — enforces one quote refresh per visitor per day.
+- **comment_summaries** — id, top_summary, controversial_summary, overall_summary, comments_analyzed, model, generated_at. Append-only — every cron run inserts a new row; pages query `order by generated_at desc limit 1`. Index on `generated_at desc`.
 
 ⚠ **Migration gotcha for views**: `0006_flairs.sql` had to `DROP VIEW + CREATE VIEW` for `ranked_comments` instead of `CREATE OR REPLACE VIEW`. Because the source table (`comments`) gained new columns, the `c.*` expansion shifts column positions in the view output, and Postgres refuses to rename existing view columns with `CREATE OR REPLACE`. Drop-and-recreate is safe — the view holds no rows; `hot_score` / `controversy_score` are computed per query (which is also why hot_score decays with time naturally).
 
@@ -123,7 +132,8 @@ Two flair fields on every comment, both optional:
 **Composer ordering**: base primary flairs are sorted by **popularity** (count of approved comments using each key), computed in the page load function. Composer popularity helper: `basePrimaryFlairsByPopularity(counts)`. Secondary flairs use a fixed order.
 
 **Infinity Stone mechanic — "fated to one stone"**:
-- Each visitor is permanently assigned **one** stone via `assignedStone(submitter_hash)` (SHA-256 over `${hash}::stone-assignment`, mod 6). They will *only ever* see that one stone — they will never see the others' in their composer.
+
+- Each visitor is permanently assigned **one** stone via `assignedStone(submitter_hash)` (SHA-256 over `${hash}::stone-assignment`, mod 6). They will _only ever_ see that one stone — they will never see the others' in their composer.
 - Each day, a 10% gate decides if their stone appears in their composer: `rollDailyStone(hash, dateUtc)` — deterministic SHA-256 over `${hash}::stone-day::${date}` so refreshes don't reroll today, but tomorrow's a fresh chance.
 - On first visit, `StoneGreeting` modal greets the visitor with their assigned stone identity. Layout server load computes `assignedStoneKey` and ships it in layout data. Popup dismissed = localStorage `mff-stone-greeted=yes`.
 - The roll rate constant is `STONE_DROP_RATE` in `stone-roll.ts`. Edit there to tune.
@@ -131,6 +141,7 @@ Two flair fields on every comment, both optional:
 **Cross-load serialization gotcha**: SvelteKit's `load` data is serialized with devalue, which can't stringify functions. `PrimaryFlair.icon` is a Svelte component (function under the hood), so server `load` functions must return `PrimaryFlairKey[]` (plain strings), and pages rehydrate via `primaryByKey()`. Same goes for OG image: the renderer (`api/og/[id]/+server.ts`) uses the catalog's `ogHex`/`ogTextHex` literals because workers-og can't run Svelte components.
 
 **Where flairs render**:
+
 - Composer (home) — interactive pill rows for primary + secondary; selected flair also rendered colored inline next to "(N chars left)".
 - CommentCard — colored pills in header; when `showPermalink` is true they wrap in a `/comments?primary=<key>` link for click-to-filter.
 - `/comments` — second filter row below sort buttons with counts; clicking toggles `?primary=` / `?secondary=` URL params; filters compose.
@@ -143,22 +154,24 @@ Web Audio API click sound layer, mmm.page-style. Single decoded buffer per sound
 
 **Six named sounds** (files at `static/sounds/xp-<key>.mp3`; missing files silently no-op):
 
-| Key | When |
-|---|---|
-| `click` | Default — any clickable element |
-| `click2` | Decorative/fake buttons (XPWindow ✕ close, ⬜ maximize when no `onMaximize`) |
-| `error` | Form validation fail, vote fail, network errors |
-| `minimize` | XPWindow `_` minimize button |
-| `send` | Successful message submit |
-| `clear` | Composer Clear button |
+| Key        | When                                                                         |
+| ---------- | ---------------------------------------------------------------------------- |
+| `click`    | Default — any clickable element                                              |
+| `click2`   | Decorative/fake buttons (XPWindow ✕ close, ⬜ maximize when no `onMaximize`) |
+| `error`    | Form validation fail, vote fail, network errors                              |
+| `minimize` | XPWindow `_` minimize button                                                 |
+| `send`     | Successful message submit                                                    |
+| `clear`    | Composer Clear button                                                        |
 
 **Wiring conventions**:
+
 - `<ClickSound />` is mounted once in `+layout.svelte` and handles global pointerdown.
 - Use `data-click-sound="<key>"` on any element to override the default click. `data-click-sound="none"` opts out entirely (used on the taskbar mute toggle so it doesn't make a sound when muting).
 - `XPButton` forwards a `dataClickSound?: string` prop down to the rendered button/anchor's `data-click-sound` attribute.
 - Programmatic playback: `sounds.play('error')` from anywhere. The composer enhance callback uses `sounds.play('send')` on success and `sounds.play('error')` on fail. CommentCard's vote-fail also plays error.
 
 **Velocity-aware** (Ableton-pad feel):
+
 - On touch / Apple Pencil: real `PointerEvent.pressure` (0–1, non-flat) maps to volume range 0.12–0.57.
 - On mouse: pressure always reports 0.5 (no hardware velocity), so we humanize with random volume + ±8% pitch jitter.
 - Either way the default click is humanized so rapid clicks never sound mechanical.
@@ -168,6 +181,23 @@ Web Audio API click sound layer, mmm.page-style. Single decoded buffer per sound
 ## Environment
 
 - `VOTER_HASH_SALT` — secret salt for `voterHash(ip, ua)`. Stable across deploys (despite the old name `DAILY_HASH_SALT` suggesting rotation — there's no rotation logic). **If you ever change this value, every existing visitor's hash resets**: votes lose dedup history, stone identities change, rate-limit counts reset. Treat it as a permanent secret.
+- `CRON_SECRET` — bearer token gating `/api/cron/refresh-summaries`. Generate with `openssl rand -hex 32`. Add to Cloudflare Pages env vars and to whatever scheduler hits the endpoint. Rotating it only requires updating the scheduler config — no user-visible impact.
+
+## Daily summary cron
+
+The Supreme Intelligence digest refreshes via an external POST to `/api/cron/refresh-summaries`. The Pages adapter doesn't expose scheduled handlers cleanly, so pick a scheduler:
+
+1. **Cloudflare Worker cron trigger** (preferred): a tiny sibling Worker with `[triggers] crons = ["0 6 * * *"]` that calls the endpoint with the bearer token.
+2. **External cron** (cron-job.org, EasyCron, GitHub Actions schedule): point a POST at the URL with the `authorization: Bearer $CRON_SECRET` header daily.
+
+Manual test:
+
+```bash
+curl -X POST -H "authorization: Bearer $CRON_SECRET" \
+  https://marvelfansforfeige.com/api/cron/refresh-summaries
+```
+
+Each call appends one row to `comment_summaries`. Cost per call: a single `gpt-4o-mini` chat completion summarizing ≤50 recent comments + top 3 hot + top 5 controversial (fractions of a cent).
 
 ## Conventions / preferences
 

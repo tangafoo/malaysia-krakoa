@@ -1,5 +1,6 @@
 import type { ServerLoad } from '@sveltejs/kit';
 import { getServerSupabase } from '$lib/server/supabase';
+import { getLatestSummary } from '$lib/server/summarize';
 import { PRIMARY_KEYS, SECONDARY_KEYS, basePrimaryFlairsByPopularity } from '$lib/flairs';
 import type { RankedComment, SortKey } from '$lib/types';
 
@@ -45,7 +46,7 @@ export const load: ServerLoad = async ({ url }) => {
 
 	const totalPages = Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE));
 
-	const [primaryUsage, secondaryUsage] = await Promise.all([
+	const [primaryUsage, secondaryUsage, summary] = await Promise.all([
 		supabase
 			.from('comments')
 			.select('primary_flair')
@@ -55,7 +56,8 @@ export const load: ServerLoad = async ({ url }) => {
 			.from('comments')
 			.select('secondary_flair')
 			.eq('status', 'approved')
-			.not('secondary_flair', 'is', null)
+			.not('secondary_flair', 'is', null),
+		getLatestSummary()
 	]);
 
 	const primaryCounts: Record<string, number> = {};
@@ -84,6 +86,7 @@ export const load: ServerLoad = async ({ url }) => {
 		secondary,
 		orderedPrimaryFlairKeys,
 		primaryCounts,
-		secondaryCounts
+		secondaryCounts,
+		summary
 	};
 };

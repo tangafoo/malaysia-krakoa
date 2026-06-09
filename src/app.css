@@ -48,8 +48,13 @@ body {
 		inset -1px -1px 0 #dfdfdf;
 }
 
-/* XP title bar gradient */
+/* XP title bar — shared chrome (color/text). Variant classes paint the gradient. */
 .xp-titlebar {
+	color: white;
+	font-weight: bold;
+	text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
+}
+.xp-titlebar-blue {
 	background: linear-gradient(
 		180deg,
 		#0058e9 0%,
@@ -59,9 +64,17 @@ body {
 		#2580ef 93%,
 		#0058e9 100%
 	);
-	color: white;
-	font-weight: bold;
-	text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
+}
+.xp-titlebar-green {
+	background: linear-gradient(
+		180deg,
+		#0e3a32 0%,
+		#1f9576 8%,
+		#0e6450 40%,
+		#0c4e3f 88%,
+		#1f9576 93%,
+		#0e3a32 100%
+	);
 }
 
 /* "Active button" press effect */
@@ -121,6 +134,137 @@ body {
 	background-size: 200% 100%;
 	background-repeat: no-repeat;
 	animation: flair-shimmer-anim 2.6s linear infinite;
+}
+
+/* Supreme Intelligence — Kree hologram screen. Dark teal field, green phosphor glow,
+   moving scanlines, gentle flicker. Compose with .xp-bevel-inset for the chrome frame. */
+.kree-screen {
+	background: radial-gradient(ellipse at center, #0b2f2a 0%, #051a18 65%, #020c0b 100%);
+	color: #6effc4;
+	font-family: var(--font-vt323), monospace;
+	text-shadow:
+		0 0 4px rgba(110, 255, 196, 0.7),
+		0 0 12px rgba(34, 200, 140, 0.45);
+	position: relative;
+	overflow: hidden;
+	animation: kree-flicker 6s infinite steps(1);
+}
+.kree-screen::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: repeating-linear-gradient(
+		0deg,
+		rgba(0, 0, 0, 0) 0px,
+		rgba(0, 0, 0, 0) 2px,
+		rgba(0, 50, 35, 0.35) 3px
+	);
+	pointer-events: none;
+	z-index: 1;
+}
+.kree-screen::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(
+		180deg,
+		rgba(110, 255, 196, 0) 0%,
+		rgba(110, 255, 196, 0.08) 50%,
+		rgba(110, 255, 196, 0) 100%
+	);
+	background-size: 100% 220%;
+	animation: kree-scan 4.5s linear infinite;
+	pointer-events: none;
+	z-index: 2;
+}
+.kree-screen > * {
+	position: relative;
+	z-index: 3;
+}
+@keyframes kree-scan {
+	0% {
+		background-position: 0% -120%;
+	}
+	100% {
+		background-position: 0% 120%;
+	}
+}
+@keyframes kree-flicker {
+	0%,
+	92%,
+	100% {
+		opacity: 1;
+	}
+	93% {
+		opacity: 0.85;
+	}
+	94% {
+		opacity: 1;
+	}
+	96% {
+		opacity: 0.92;
+	}
+	97% {
+		opacity: 1;
+	}
+}
+
+/* Supreme Intelligence head — ghostly apparition behind the transmission text.
+   Absolute, oversized + cropped so the face looms at the edge. Screen-blend feeds
+   the green into the phosphor field. Breathes in/out so it feels alive. */
+.kree-ghost {
+	position: absolute;
+	top: 50%;
+	right: -8%;
+	width: 65%;
+	max-width: 320px;
+	transform: translateY(-50%);
+	opacity: 0.18;
+	mix-blend-mode: screen;
+	filter: blur(0.4px) saturate(1.4);
+	z-index: 1;
+	animation: kree-breathe 5.5s ease-in-out infinite;
+}
+@keyframes kree-breathe {
+	0%,
+	100% {
+		opacity: 0.14;
+		transform: translateY(-50%) scale(1);
+	}
+	50% {
+		opacity: 0.28;
+		transform: translateY(-50%) scale(1.04);
+	}
+}
+@media (min-width: 640px) {
+	.kree-ghost {
+		right: -4%;
+		width: 50%;
+	}
+}
+
+/* Kree tab buttons */
+.kree-tab {
+	font-family: var(--font-vt323), monospace;
+	letter-spacing: 0.08em;
+	color: #2d6f5a;
+	background: #061a17;
+	border: 1px solid #0c3a32;
+	padding: 0.25rem 0.6rem;
+	cursor: pointer;
+	text-transform: uppercase;
+	transition: color 0.15s;
+}
+.kree-tab:hover {
+	color: #6effc4;
+}
+.kree-tab[aria-selected='true'] {
+	color: #6effc4;
+	background: #0e3a32;
+	border-color: #6effc4;
+	text-shadow:
+		0 0 4px rgba(110, 255, 196, 0.9),
+		0 0 10px rgba(110, 255, 196, 0.5);
 }
 
 /* Marquee */
