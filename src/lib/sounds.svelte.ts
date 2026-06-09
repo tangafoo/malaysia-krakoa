@@ -2,7 +2,14 @@ import { browser } from '$app/environment';
 
 const STORAGE_KEY = 'xp-sounds';
 
-export type SoundKey = 'click' | 'click2' | 'error' | 'minimize' | 'send' | 'clear';
+export type SoundKey =
+	| 'click'
+	| 'click2'
+	| 'error'
+	| 'minimize'
+	| 'send'
+	| 'clear'
+	| 'repulsor';
 
 const SOURCES: Record<SoundKey, string> = {
 	click: '/sounds/xp-click.mp3',
@@ -10,8 +17,11 @@ const SOURCES: Record<SoundKey, string> = {
 	error: '/sounds/xp-error.mp3',
 	minimize: '/sounds/xp-minimize.mp3',
 	send: '/sounds/xp-send.mp3',
-	clear: '/sounds/xp-clear.mp3'
+	clear: '/sounds/xp-clear.mp3',
+	repulsor: '/sounds/iron-man-repulsor.mp3'
 };
+
+export const SOUND_KEYS = Object.keys(SOURCES) as SoundKey[];
 
 interface PlayOptions {
 	volume?: number;

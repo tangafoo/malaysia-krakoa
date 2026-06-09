@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { sounds, type SoundKey } from '$lib/sounds.svelte';
+	import { sounds, SOUND_KEYS, type SoundKey } from '$lib/sounds.svelte';
 
-	const VALID_KEYS = new Set<SoundKey>(['click', 'click2', 'error', 'minimize', 'send', 'clear']);
+	const VALID_KEYS = new Set<SoundKey>(SOUND_KEYS);
 
 	onMount(() => {
 		sounds.hydrate();

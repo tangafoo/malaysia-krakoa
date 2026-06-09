@@ -257,7 +257,12 @@
 			>
 				Find out more about Kevin Feige →
 			</a>
-			<XPButton onclick={refreshQuote} disabled={quoteRefreshed || refreshingQuote}>
+			<XPButton
+				onclick={refreshQuote}
+				disabled={quoteRefreshed || refreshingQuote}
+				dataClickSound="repulsor"
+				class="text-xs!"
+			>
 				{quoteRefreshed ? '✓ Refreshed today' : refreshingQuote ? 'Refreshing…' : '🔄 New quote'}
 			</XPButton>
 		</div>

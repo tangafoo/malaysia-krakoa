@@ -54,11 +54,16 @@
 
 <div class="flex flex-wrap items-center gap-2">
 	<span class="font-tahoma text-xs font-bold text-[#404040] uppercase">How do you feel?</span>
-	<XPButton onclick={() => vote(1)} disabled={!!voted} ariaLabel="Heart">
+	<XPButton onclick={() => vote(1)} disabled={!!voted} ariaLabel="Heart" class="bg-neutral-350!">
 		<span class="text-base leading-none">❤️</span>
 		<span class="font-tahoma tabular-nums">{hearts}</span>
 	</XPButton>
-	<XPButton onclick={() => vote(-1)} disabled={!!voted} ariaLabel="Broken heart">
+	<XPButton
+		onclick={() => vote(-1)}
+		disabled={!!voted}
+		ariaLabel="Broken heart"
+		class="bg-neutral-350!"
+	>
 		<span class="text-base leading-none">❤️‍🩹</span>
 		<span class="font-tahoma tabular-nums">{brokenHearts}</span>
 	</XPButton>

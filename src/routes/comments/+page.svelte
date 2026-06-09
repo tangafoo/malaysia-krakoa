@@ -96,10 +96,6 @@
 	<meta property="og:description" content="Every Marvel fan letter, sortable and upvotable." />
 </svelte:head>
 
-<div class="mb-4">
-	<SupremeIntelligence summary={data.summary} />
-</div>
-
 <XPWindow title="All Messages to Kevin — Browse &amp; Vote" icon="📂">
 	<div class="flex flex-wrap items-center gap-2 border-b border-[#808080] pb-2">
 		{#each sortKeys as s (s)}
@@ -191,3 +187,7 @@
 		</nav>
 	{/if}
 </XPWindow>
+
+<div class="mt-4">
+	<SupremeIntelligence summary={data.summary} />
+</div>

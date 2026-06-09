@@ -35,16 +35,18 @@
 				</p>
 				<p>
 					marvelfansforfeige.com is a small corner of the web where fans everywhere can leave short
-					messages to the OG head of Marvel. Hopefully one day Mr. Feige checks us out, and sees
-					there are still a lot of us cheering/ranting him on.
+					messages to the OG creative director of Marvel.
 				</p>
 				<p>
-					Click <a href="/comments" class="text-xp-blue underline">All Messages</a> to read everything
+					Click <a href="/comments" class="text-xp-blue underline">All Messages</a> to read ALL comments,
 					and upvote the takes you agree with.
 				</p>
-				<h3 class="font-pixelify mt-2 text-lg">House rules</h3>
+				<hr />
 				<ul class="list-disc pl-5">
-					<li>Be kind. Hateful or off-topic stuff gets filtered.</li>
+					<li>
+						Be thoughtful - hateful & off-topic speech will get picked up by AI moderation
+						(hopefully).
+					</li>
 					<li>No accounts. Just names (optional) and messages.</li>
 					<li>One vote per device.</li>
 				</ul>
@@ -75,12 +77,12 @@
 				Made from a Malaysian fan who wants to keep this site alive. If it made you smile, throw a
 				coffee my way.
 			</p>
-			<div class="mt-3 text-center">
+			<div class="mt-3 flex">
 				<a
 					href="https://ko-fi.com/ctgfoo"
 					target="_blank"
 					rel="noreferrer"
-					class="font-coral-pixels inline-block max-w-fit rounded-full border-2 border-amber-500 bg-gradient-to-br from-amber-500 via-yellow-200 to-amber-500 px-4 text-2xl font-bold italic shadow-md hover:scale-105"
+					class="font-coral-pixels ml-auto inline-block max-w-fit rounded-full border-2 border-amber-500 bg-gradient-to-br from-amber-500 via-yellow-200 to-amber-500 px-4 text-2xl font-bold italic shadow-md hover:scale-105"
 				>
 					Tip
 				</a>

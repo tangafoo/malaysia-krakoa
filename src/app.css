@@ -19,6 +19,10 @@
 	--color-xp-green-dark: #5a8019;
 	--color-xp-tan: #ece9d8;
 	--color-xp-gray: #d4d0c8;
+
+	/* Custom mid-gray between Tailwind neutral-300 (#d4d4d4) and neutral-400 (#a3a3a3).
+	   Shared chrome color across Supreme Intelligence body, flair buttons, and HDYF buttons. */
+	--color-neutral-350: #bcbcbc;
 }
 
 body {
@@ -217,7 +221,7 @@ body {
 	top: 50%;
 	right: -8%;
 	width: 65%;
-	max-width: 320px;
+	max-width: 280px;
 	transform: translateY(-50%);
 	opacity: 0.18;
 	mix-blend-mode: screen;
@@ -247,7 +251,7 @@ body {
 .kree-tab {
 	font-family: var(--font-vt323), monospace;
 	letter-spacing: 0.08em;
-	color: #2d6f5a;
+	color: rgb(255 255 255 / 0.9);
 	background: #061a17;
 	border: 1px solid #0c3a32;
 	padding: 0.25rem 0.6rem;
@@ -265,6 +269,47 @@ body {
 	text-shadow:
 		0 0 4px rgba(110, 255, 196, 0.9),
 		0 0 10px rgba(110, 255, 196, 0.5);
+}
+
+/* Kree help icon + popup */
+.kree-help-btn {
+	width: 1.5rem;
+	height: 1.5rem;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 9999px;
+	background: #061a17;
+	color: #6effc4;
+	border: 1px solid #0c3a32;
+	font-family: var(--font-vt323), monospace;
+	font-size: 0.95rem;
+	line-height: 1;
+	cursor: pointer;
+	transition: border-color 0.15s;
+}
+.kree-help-btn:hover,
+.kree-help-btn[aria-expanded='true'] {
+	border-color: #6effc4;
+	text-shadow:
+		0 0 4px rgba(110, 255, 196, 0.9),
+		0 0 10px rgba(110, 255, 196, 0.5);
+}
+.kree-help-popup {
+	position: absolute;
+	top: calc(100% + 0.4rem);
+	right: 0;
+	width: 260px;
+	z-index: 20;
+	background: black;
+	border: 1px solid #6effc4;
+	color: #6effc4;
+	font-family: var(--font-vt323), monospace;
+	font-size: 0.95rem;
+	line-height: 1.2;
+	padding: 0.6rem 0.7rem;
+	text-shadow: 0 0 4px rgba(110, 255, 196, 0.6);
+	box-shadow: 0 0 20px rgba(110, 255, 196, 0.25);
 }
 
 /* Marquee */

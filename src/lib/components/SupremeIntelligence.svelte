@@ -1,6 +1,7 @@
 <script lang="ts">
 	import XPWindow from './XPWindow.svelte';
 	import supremeKree from '$lib/assets/supreme-intelligence-kree.webp';
+	import { formatDistanceToNow } from 'date-fns';
 
 	type SummaryShape = {
 		top_summary: string;
@@ -14,12 +15,12 @@
 	let { summary }: { summary: SummaryShape } = $props();
 
 	type Tab = 'top' | 'controversial' | 'overall';
-	let active = $state<Tab>('top');
+	let active = $state<Tab>('overall');
 
 	const tabs: { key: Tab; label: string; icon: string }[] = [
-		{ key: 'top', label: 'TOP TAKES', icon: '🔥' },
-		{ key: 'controversial', label: 'DISSENT', icon: '🃏' },
-		{ key: 'overall', label: 'THE COLLECTIVE', icon: '🌌' }
+		{ key: 'overall', label: 'ALL', icon: '🌌' },
+		{ key: 'top', label: 'TOP', icon: '🔥' },
+		{ key: 'controversial', label: 'CONTROVERSIAL', icon: '🃏' }
 	];
 
 	const body = $derived(
@@ -32,39 +33,78 @@
 			: ''
 	);
 
-	const generatedLabel = $derived.by(() => {
-		if (!summary) return '';
-		const d = new Date(summary.generated_at);
-		const now = new Date();
-		const diffMs = now.getTime() - d.getTime();
-		const hrs = Math.floor(diffMs / (1000 * 60 * 60));
-		if (hrs < 1) return 'just now';
-		if (hrs < 24) return `${hrs}h ago`;
-		const days = Math.floor(hrs / 24);
-		return `${days}d ago`;
+	const generatedLabel = $derived(
+		summary ? formatDistanceToNow(new Date(summary.generated_at), { addSuffix: true }) : ''
+	);
+
+	let helpOpen = $state(false);
+	let helpWrapEl: HTMLDivElement | undefined = $state();
+
+	$effect(() => {
+		if (!helpOpen) return;
+		const onClick = (e: MouseEvent) => {
+			if (helpWrapEl && !helpWrapEl.contains(e.target as Node)) helpOpen = false;
+		};
+		const onKey = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') helpOpen = false;
+		};
+		document.addEventListener('click', onClick);
+		document.addEventListener('keydown', onKey);
+		return () => {
+			document.removeEventListener('click', onClick);
+			document.removeEventListener('keydown', onKey);
+		};
 	});
 </script>
 
-<XPWindow title="Supreme Intelligence — K.E.V.I.N. transmissions" icon="🧠" titlebarVariant="green">
+<XPWindow
+	title="Kree Supreme Intelligence"
+	icon="🧠"
+	titlebarVariant="green"
+	bodyClass="bg-neutral-350!"
+>
 	<div class="flex flex-col gap-3">
-		<!-- Tabs -->
-		<div role="tablist" aria-label="Summary view" class="flex flex-wrap gap-1 text-xs">
-			{#each tabs as t (t.key)}
+		<!-- Tabs + help -->
+		<div class="flex flex-wrap items-center justify-between gap-2">
+			<div role="tablist" aria-label="Summary view" class="flex flex-wrap gap-1 text-xs">
+				{#each tabs as t (t.key)}
+					<button
+						type="button"
+						role="tab"
+						aria-selected={active === t.key}
+						onclick={() => (active = t.key)}
+						class="kree-tab"
+					>
+						<span aria-hidden="true">{t.icon}</span>
+						{t.label}
+					</button>
+				{/each}
+			</div>
+
+			<div bind:this={helpWrapEl} class="relative">
 				<button
 					type="button"
-					role="tab"
-					aria-selected={active === t.key}
-					onclick={() => (active = t.key)}
-					class="kree-tab"
+					onclick={(e) => {
+						e.stopPropagation();
+						helpOpen = !helpOpen;
+					}}
+					aria-label="What is the Supreme Intelligence?"
+					aria-expanded={helpOpen}
+					class="kree-help-btn"
 				>
-					<span aria-hidden="true">{t.icon}</span>
-					{t.label}
+					?
 				</button>
-			{/each}
+				{#if helpOpen}
+					<div role="tooltip" class="kree-help-popup">
+						AI synthesis of every fan message sent to Kevin Feige. The Kree oracle reads the room so
+						you don't have to. Can you change the sentiment?
+					</div>
+				{/if}
+			</div>
 		</div>
 
 		<!-- Kree screen -->
-		<div class="xp-bevel-inset bg-black p-2">
+		<div class="xp-bevel-inset rounded-xl bg-black p-2">
 			<div class="kree-screen min-h-[220px] p-4">
 				<!-- Ghostly Supreme Intelligence head: absolute, low-opacity, screen-blend so the green
 				     glow eats into the phosphor field. Cropped intentionally so it lurks. -->
@@ -75,9 +115,9 @@
 					class="kree-ghost pointer-events-none select-none"
 				/>
 
-				<div class="mb-2 flex items-center justify-between text-[10px] uppercase opacity-80">
-					<span>◉ Transmission · Channel 0058</span>
-					<span class="animate-pulse">● LIVE</span>
+				<div class="mb-2 flex items-center justify-between text-xs uppercase opacity-80">
+					<span>Analyzed: {summary?.comments_analyzed} comments</span>
+					<span>Last cycle: {generatedLabel}</span>
 				</div>
 
 				{#if summary}
@@ -89,8 +129,8 @@
 					<div
 						class="mt-4 flex flex-wrap items-center justify-between gap-2 text-[10px] uppercase opacity-70"
 					>
-						<span>Synthesis: {summary.comments_analyzed} signals analyzed</span>
-						<span>Last cycle: {generatedLabel}</span>
+						<span>◉ Transmission · Channel 428</span>
+						<span class="animate-pulse text-lg text-emerald-300!">● LIVE</span>
 					</div>
 				{:else}
 					<p class="text-xl leading-snug tracking-wide opacity-90">
@@ -101,8 +141,6 @@
 			</div>
 		</div>
 
-		<p class="font-tahoma text-[10px] text-[#404040]">
-			Daily synthesis of fan signals. Refreshes once per Earth-cycle.
-		</p>
+		<p class="font-tahoma text-[10px] text-[#404040]">Refreshed Daily.</p>
 	</div>
 </XPWindow>
